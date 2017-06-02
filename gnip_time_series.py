@@ -18,7 +18,6 @@ import calendar
 import codecs
 import csv
 import datetime
-import json
 import logging
 import matplotlib
 import matplotlib.pyplot as plt
@@ -33,6 +32,10 @@ from functools import partial
 from operator import itemgetter
 from scipy import signal
 from search.results import *
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 # fixes an annoying warning that scipy is throwing 
 import warnings
@@ -43,7 +46,6 @@ if sys.version_info[0] == 2:
     import ConfigParser
 elif sys.version_info[0] == 3:
     import configparser as ConfigParser
-    #from imp import reload
 
 # Python 2 specific setup (Py3 the utf-8 stuff is handled)
 if sys.version_info[0] == 2:
