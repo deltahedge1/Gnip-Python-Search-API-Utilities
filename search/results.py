@@ -73,7 +73,7 @@ class Results():
     def get_activities(self):
         """Generator of query tweet results."""
         for x in self.query.get_activity_set():
-            yield x.tweet_dict
+            yield x
     
     def get_time_series(self):
         """Generator of time series for query results."""
