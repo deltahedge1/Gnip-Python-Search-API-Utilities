@@ -8,7 +8,7 @@ import datetime
 import time
 import os
 import re
-import gnip_tweet_parser
+import gnip_tweet_parser as gtp
 from .api import *
 from simple_n_grams.simple_n_grams import SimpleNGrams
 
@@ -122,7 +122,7 @@ class Results():
                             "longitude": lat_lon["longitude"]
                             }
                 yield activity
-            except tweet_parser.NotAvailableError:
+            except gtp.NotAvailableError:
                 pass
  
     def get_frequency_items(self, size = 20):

@@ -10,7 +10,7 @@ import time
 import os
 import re
 import unicodedata
-import gnip_tweet_parser
+import gnip_tweet_parser as gtp
 # faster json parsing if possible
 try:
     import ujson as json
@@ -222,10 +222,10 @@ class Query(object):
             for file_name in self.paged_file_list:
                 with codecs.open(file_name,"rb") as f:
                     for res in f:
-                        yield tweet_parser.tweet(res.decode('utf-8'))
+                        yield gtp.tweet(res.decode('utf-8'))
         else:
             for res in self.rec_dict_list:
-                yield tweet_parser.tweet(tweet_dict = res)
+                yield gtp.tweet(tweet_dict = res)
 
     def execute(self
             , pt_filter
@@ -293,7 +293,7 @@ class Query(object):
             else:
                 # json activities
                 # keep track of tweet times for time calculation
-                tweet = tweet_parser.tweet(tweet_dict = rec)
+                tweet = gtp.tweet(tweet_dict = rec)
                 t = tweet.created_at_datetime
                 tmp_tl_list = [tweet.created_at_seconds, 1, t]
                 self.tweet_times_flag = True
