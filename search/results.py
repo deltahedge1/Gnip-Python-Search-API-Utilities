@@ -8,7 +8,7 @@ import datetime
 import time
 import os
 import re
-import tweet_parser
+import gnip_tweet_parser
 from .api import *
 from simple_n_grams.simple_n_grams import SimpleNGrams
 

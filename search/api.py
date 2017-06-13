@@ -10,7 +10,7 @@ import time
 import os
 import re
 import unicodedata
-import tweet_parser
+import gnip_tweet_parser
 # faster json parsing if possible
 try:
     import ujson as json
