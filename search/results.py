@@ -85,7 +85,7 @@ class Results():
            the order of how many times each was shared."""
         self.freq = SimpleNGrams(char_upper_cutoff=100, tokenizer="space")
         for x in self.query.get_activity_set():
-            for link_str in x.most_unrolled_url:
+            for link_str in x.most_unrolled_urls:
                 self.freq.add(link_str)
         return self.freq.get_tokens(n)
         
