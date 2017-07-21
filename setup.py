@@ -12,7 +12,7 @@ setup(
     license='LICENSE.txt',
     description='Simple utilties to explore the Gnip search API',
     install_requires=[
-        #"gnacs >= 1.1.0" ,
+         "tweet_parser >=1.0.2.dev1",
          "sngrams >= 0.2.0" ,
          "requests > 2.4.0"
         ],

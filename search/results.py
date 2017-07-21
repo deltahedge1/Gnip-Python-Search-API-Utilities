@@ -8,7 +8,7 @@ import datetime
 import time
 import os
 import re
-import gnip_tweet_parser as gtp
+from tweet_parser.tweet import Tweet
 from .api import *
 from simple_n_grams.simple_n_grams import SimpleNGrams
 
@@ -114,7 +114,7 @@ class Results():
             
     def get_geo(self):
         for x in self.query.get_activity_set():
-            try:
+            if x.geo_coordinates is not None:
                 lat_lon = x.geo_coordinates
                 activity = {"id": x.id,
                             "postedTime": x.created_at_string.strip(".000Z"),
@@ -122,8 +122,6 @@ class Results():
                             "longitude": lat_lon["longitude"]
                             }
                 yield activity
-            except gtp.NotAvailableError:
-                pass
  
     def get_frequency_items(self, size = 20):
         """Retrieve the token list structure from the last query"""
