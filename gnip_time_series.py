@@ -127,7 +127,8 @@ class GnipSearchTimeseries():
         # decode step should not be included for python 3
         if sys.version_info[0] == 2: 
             self.options.filter = self.options.filter.decode("utf-8")
-            self.options.second_filter = self.options.second_filter.decode("utf-8")
+            if self.options.second_filter is not None:
+                self.options.second_filter = self.options.second_filter.decode("utf-8")
         # set up the job
         # over ride config file with command line args if present
         if self.options.user is not None:
