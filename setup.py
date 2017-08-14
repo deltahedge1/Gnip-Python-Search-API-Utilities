@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='gapi',
-    version='1.1.0',
+    version='1.2.0',
     author='Scott Hendrickson, Josh Montague, Jeff Kolb, Fiona Pigott',
     author_email='des-services@twitter.com',
     packages=['search'],
