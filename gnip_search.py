@@ -77,7 +77,7 @@ class GnipSearchCMD():
             sys.stderr.write("Something is wrong with your configuration. It's possible that the we can't find your config file.")
             sys.exit(-1)
 
-        # Gnacs is not yet upgraded to python3, so don't allow CSV output option (which uses Gnacs) if python3
+        # don't allow csv option for JSON, it just doesn't make sense
         if self.options.csv_flag and self.options.use_case == "json":
             raise ValueError("CSV option not available for JSON use case")
 
