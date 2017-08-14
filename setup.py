@@ -7,8 +7,8 @@ setup(
     author_email='des-services@twitter.com',
     packages=['search'],
     scripts=['gnip_search.py', 'gnip_time_series.py'],
-    url='https://github.com/fionapigott/Gnip-Python-Search-API-Utilities',
-    download_url='https://github.com/fionapigott/Gnip-Python-Search-API-Utilities/tags/',
+    url='https://github.com/tw-ddis/Gnip-Python-Search-API-Utilities',
+    download_url='https://github.com/tw-ddis/Gnip-Python-Search-API-Utilities/tags/',
     license='LICENSE.txt',
     description='Simple utilties to explore the Gnip search API',
     install_requires=[
