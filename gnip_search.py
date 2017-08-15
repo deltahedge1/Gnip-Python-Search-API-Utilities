@@ -77,6 +77,12 @@ class GnipSearchCMD():
             sys.stderr.write("Something is wrong with your configuration. It's possible that the we can't find your config file.")
             sys.exit(-1)
 
+        # search v2 uses a different url
+        if "gnip-api.twitter.com" not in self.stream_url:
+            sys.stderr.write("gnipSearch tools require Search V2. Exiting.\n")
+            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
+            sys.exit(-1)
+        
         # don't allow csv option for JSON, it just doesn't make sense
         if self.options.csv_flag and self.options.use_case == "json":
             raise ValueError("CSV option not available for JSON use case")
@@ -131,10 +137,6 @@ class GnipSearchCMD():
                 help="User name")
         twitter_parser.add_argument("-w", "--output-file-path", dest="output_file_path", default=None,
                 help="Create files in ./OUTPUT-FILE-PATH. This path must exists and will not be created. This options is available only with -a option. Default is no output files.")
-        # depricated... leave in for compatibility
-        twitter_parser.add_argument("-t", "--search-v2", dest="search_v2", action="store_true",
-                default=False, 
-                help="Using search API v2 endpoint. [This is depricated and is automatically set based on endpoint.]")
         return twitter_parser
     
     def get_result(self):

@@ -141,14 +141,13 @@ class GnipSearchTimeseries():
         # search v2 uses a different url
         if "gnip-api.twitter.com" not in self.stream_url:
             logging.error("gnipSearch timeline tools require Search V2. Exiting.")
-            logging.error("Your URL should look like: https://gnip-api.twitter.com/search/fullarchive/accounts/<account>/dev.json")
+            logging.error("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.stderr.write("gnipSearch timeline tools require Search V2. Exiting.\n")
-            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/fullarchive/accounts/<account>/dev.json")
+            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.exit(-1)
 
         # set some options that should not be changed for this anaysis
         self.options.paged = True
-        self.options.search_v2 = True
         self.options.max = 500
         self.options.query = False
 
