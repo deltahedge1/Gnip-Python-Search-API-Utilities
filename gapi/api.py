@@ -105,7 +105,7 @@ class Query(object):
         f = f.replace(')','_p_') 
         self.file_name_prefix = unicodedata.normalize(
                 "NFKD",f[:42]).encode(
-                        "ascii","ignore")
+                        "ascii","ignore").decode()
 
     def request(self):
         """HTTP request based on class variables for rule_payload, 
