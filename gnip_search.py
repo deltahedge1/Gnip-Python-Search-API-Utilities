@@ -78,7 +78,7 @@ class GnipSearchCMD():
             sys.exit(-1)
 
         # search v2 uses a different url
-        if "gnip-api.twitter.com" not in self.stream_url:
+        if "gnip-api.twitter.com" not in self.stream_url and "data-api.twitter.com" not in self.stream_url:
             sys.stderr.write("gnipSearch tools require Search V2. Exiting.\n")
             sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.exit(-1)
