@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-__author__="Scott Hendrickson, Jeff Kolb, Josh Montague" 
+__author__="Scott Hendrickson, Jeff Kolb, Josh Montague, Fiona Pigott" 
 
 import sys
-import json
 import codecs
 import argparse
 import datetime
 import time
 import os
+
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 if sys.version_info.major == 2:
     import ConfigParser as configparser
@@ -73,9 +77,15 @@ class GnipSearchCMD():
             sys.stderr.write("Something is wrong with your configuration. It's possible that the we can't find your config file.")
             sys.exit(-1)
 
-        # Gnacs is not yet upgraded to python3, so don't allow CSV output option (which uses Gnacs) if python3
-        if self.options.csv_flag and sys.version_info.major == 3:
-            raise ValueError("CSV option not yet available for Python3")
+        # search v2 uses a different url
+        if "gnip-api.twitter.com" not in self.stream_url and "data-api.twitter.com" not in self.stream_url:
+            sys.stderr.write("gnipSearch tools require Search V2. Exiting.\n")
+            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
+            sys.exit(-1)
+        
+        # don't allow csv option for JSON, it just doesn't make sense
+        if self.options.csv_flag and self.options.use_case == "json":
+            raise ValueError("CSV option not available for JSON use case")
 
     def config_file(self):
         config = configparser.ConfigParser()
@@ -127,16 +137,14 @@ class GnipSearchCMD():
                 help="User name")
         twitter_parser.add_argument("-w", "--output-file-path", dest="output_file_path", default=None,
                 help="Create files in ./OUTPUT-FILE-PATH. This path must exists and will not be created. This options is available only with -a option. Default is no output files.")
-        # depricated... leave in for compatibility
-        twitter_parser.add_argument("-t", "--search-v2", dest="search_v2", action="store_true",
-                default=False, 
-                help="Using search API v2 endpoint. [This is depricated and is automatically set based on endpoint.]")
         return twitter_parser
     
     def get_result(self):
         WIDTH = 80
         BIG_COLUMN = 32
         res = [u"-"*WIDTH]
+
+        ################################################ time series use case
         if self.options.use_case.startswith("time"):
             self.results = Results(
                 self.user
@@ -157,9 +165,10 @@ class GnipSearchCMD():
                 for x in self.results.get_time_series():
                     res.append("{:%Y-%m-%dT%H:%M:%S},{},{}".format(x[2], x[0], x[1]))
             else:
-                res = [x for x in self.results.get_activities()]
+                res = [x for x in self.results.get_raw_results()]
                 return '{"results":' + json.dumps(res) + "}"
 
+        ############################################### all other use cases
         else:
             self.results = Results(
                 self.user
@@ -175,7 +184,7 @@ class GnipSearchCMD():
                 , show_query=self.options.query
                 , hard_max=self.options.hard_max
                 )
-            if self.options.use_case.startswith("rate"):
+            if self.options.use_case.startswith("rate"): ########## rate use case
                 rate = self.results.query.get_rate()
                 unit = "Tweets/Minute"
                 if rate < 0.01:
@@ -187,7 +196,7 @@ class GnipSearchCMD():
                 res.append("           Now (UTC): %s"%str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")))
                 res.append("        %5d Tweets: %6.3f %s"%(len(self.results), rate, unit))
                 res.append("-"*WIDTH)
-            elif self.options.use_case.startswith("geo"):
+            elif self.options.use_case.startswith("geo"): ######## geo use case
                 res = []
                 for x in self.results.get_geo():
                     if self.options.csv_flag:
@@ -197,10 +206,8 @@ class GnipSearchCMD():
                             print >> sys.stderr, str(e)
                     else:
                         res.append(json.dumps(x))
-            elif self.options.use_case.startswith("json"):
+            elif self.options.use_case.startswith("json"): ############ json use case
                 res = [json.dumps(x) for x in self.results.get_activities()]
-                if self.options.csv_flag:
-                    res = ["|".join(x) for x in self.results.query.get_list_set()]
             elif self.options.use_case.startswith("word"):
                 fmt_str = u"%{}s -- %10s     %8s ".format(BIG_COLUMN)
                 res.append(fmt_str%( "terms", "mentions", "activities"))
@@ -210,7 +217,7 @@ class GnipSearchCMD():
                     res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("    TOTAL: %d activities"%len(self.results))
                 res.append("-"*WIDTH)
-            elif self.options.use_case.startswith("user"):
+            elif self.options.use_case.startswith("user"): ############# user use case
                 fmt_str = u"%{}s -- %10s     %8s ".format(BIG_COLUMN)
                 res.append(fmt_str%( "terms", "mentions", "activities"))
                 res.append("-"*WIDTH)
@@ -219,14 +226,14 @@ class GnipSearchCMD():
                     res.append(fmt_str%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("    TOTAL: %d activities"%len(self.results))
                 res.append("-"*WIDTH)
-            elif self.options.use_case.startswith("link"):
+            elif self.options.use_case.startswith("link"): ############ links use case
                 res[-1]+=u"-"*WIDTH
                 res.append(u"%100s -- %10s     %8s (%d)"%("links", "mentions", "activities", len(self.results)))
                 res.append("-"*2*WIDTH)
                 for x in self.results.get_top_links(n=self.token_list_size):
                     res.append(u"%100s -- %4d  %5.2f%% %4d  %5.2f%%"%(x[4], x[0], x[1]*100., x[2], x[3]*100.))
                 res.append("-"*WIDTH)
-            elif self.options.use_case.startswith("audie"):
+            elif self.options.use_case.startswith("audie"): ########### audience use case
                 for x in self.results.get_users():
                     res.append(u"{}".format(x))
                 res.append("-"*WIDTH)

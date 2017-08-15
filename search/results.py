@@ -8,7 +8,7 @@ import datetime
 import time
 import os
 import re
-
+from tweet_parser.tweet import Tweet
 from .api import *
 from simple_n_grams.simple_n_grams import SimpleNGrams
 
@@ -65,11 +65,16 @@ class Results():
             )
         self.freq = None
 
-    def get_activities(self):
-        """Generator of query results."""
-        for x in self.query.get_activity_set():
+    def get_raw_results(self):
+        """Generator of query results"""
+        for x in self.query.get_raw_results():
             yield x
 
+    def get_activities(self):
+        """Generator of query tweet results."""
+        for x in self.query.get_activity_set():
+            yield x
+    
     def get_time_series(self):
         """Generator of time series for query results."""
         for x in self.query.get_time_series():
@@ -79,48 +84,44 @@ class Results():
         """Returns the links most shared in the data set retrieved in
            the order of how many times each was shared."""
         self.freq = SimpleNGrams(char_upper_cutoff=100, tokenizer="space")
-        for x in self.query.get_list_set():
-            link_str = x[LINKS_INDEX]
-            if link_str != "GNIPEMPTYFIELD" and link_str != "None":
+        for x in self.query.get_activity_set():
+            for link_str in x.most_unrolled_urls:
                 self.freq.add(link_str)
-            else:
-                self.freq.add("NoLinks")
         return self.freq.get_tokens(n)
-
+        
     def get_top_users(self, n=50):
         """Returns the users  tweeting the most in the data set retrieved
            in the data set. Users are returned in descending order of how
            many times they were tweeted."""
         self.freq = SimpleNGrams(char_upper_cutoff=20, tokenizer="twitter")
-        for x in self.query.get_list_set():
-            self.freq.add(x[USER_NAME_INDEX])
+        for x in self.query.get_activity_set():
+            self.freq.add(x.screen_name)
         return self.freq.get_tokens(n) 
 
     def get_users(self, n=None):
         """Returns the user ids for the tweets collected"""
         uniq_users = set()
-        for x in self.query.get_list_set():
-            uniq_users.add(x[USER_ID_INDEX])
+        for x in self.query.get_activity_set():
+            uniq_users.add(x.user_id)
         return uniq_users
 
     def get_top_grams(self, n=20):
         self.freq = SimpleNGrams(char_upper_cutoff=20, tokenizer="twitter")
         self.freq.sl.add_session_stop_list(["http", "https", "amp", "htt"])
-        for x in self.query.get_list_set():
-            self.freq.add(x[TEXT_INDEX])
+        for x in self.query.get_activity_set():
+            self.freq.add(x.all_text)
         return self.freq.get_tokens(n) 
             
     def get_geo(self):
-        for rec in self.query.get_activity_set():
-            lat, lng = None, None
-            if "geo" in rec:
-                if "coordinates" in rec["geo"]:
-                    [lat,lng] = rec["geo"]["coordinates"]
-                    activity = { "id": rec["id"].split(":")[2]
-                        , "postedTime": rec["postedTime"].strip(".000Z")
-                        , "latitude": lat
-                        , "longitude": lng }
-                    yield activity
+        for x in self.query.get_activity_set():
+            if x.geo_coordinates is not None:
+                lat_lon = x.geo_coordinates
+                activity = {"id": x.id,
+                            "postedTime": x.created_at_string.strip(".000Z"),
+                            "latitude": lat_lon["latitude"],
+                            "longitude": lat_lon["longitude"]
+                            }
+                yield activity
  
     def get_frequency_items(self, size = 20):
         """Retrieve the token list structure from the last query"""

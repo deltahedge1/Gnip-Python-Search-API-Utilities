@@ -1,33 +1,31 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-__author__="Scott Hendrickson, Josh Montague" 
+__author__="Scott Hendrickson, Josh Montague, Fiona Pigott" 
 
 import sys
 import requests
-import json
 import codecs
 import datetime
 import time
 import os
 import re
 import unicodedata
-
-from acscsv.twitter_acs import TwacsCSV
-
+from tweet_parser.tweet import Tweet
+# faster json parsing if possible
+try:
+    import ujson as json
+except:
+    import json
 ## update for python3
 if sys.version_info[0] == 2:
     reload(sys)
     sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
     sys.stdin = codecs.getreader('utf-8')(sys.stdin)
 
-#remove this
-requests.packages.urllib3.disable_warnings()
-
 # formatter of data from API 
 TIME_FORMAT_SHORT = "%Y%m%d%H%M"
 TIME_FORMAT_LONG = "%Y-%m-%dT%H:%M:%S.000Z"
 PAUSE = 1 # seconds between page requests
-POSTED_TIME_IDX = 1
 #date time parsing utility regex
 DATE_TIME_RE = re.compile("([0-9]{4}).([0-9]{2}).([0-9]{2}).([0-9]{2}):([0-9]{2})")
 
@@ -46,13 +44,11 @@ class Query(object):
         """A Query requires at least a valid user name, password and endpoint url.
            The URL of the endpoint should be the JSON records endpoint, not the counts
            endpoint.
-
            Additional parambers specifying paged search and output file path allow
            for making queries which return more than the 500 activity limit imposed by
            a single call to the API. This is called paging or paged search. Setting 
            paged = True will enable the token interpretation 
            functionality provided in the API to return a seamless set of activites.
-
            Once the object is created, it can be used for repeated access to the
            configured end point with the same connection configuration set at
            creation."""
@@ -63,9 +59,6 @@ class Query(object):
         self.user = user
         self.password = password
         self.end_point = stream_url # activities end point NOT the counts end point
-        # get a parser for the twitter columns
-        # TODO: use the updated retriveal methods in gnacs instead of this?
-        self.twitter_parser = TwacsCSV(",", None, False, True, False, True, False, False, False)
         # Flag for post processing tweet timeline from tweet times
         self.tweet_times_flag = False
 
@@ -74,7 +67,6 @@ class Query(object):
            dates for start date time and end date time, extract the required
            date string format for use in the API query and make sure they
            are valid dates. 
-
            Sets class fromDate and toDate date strings."""
         if start:
             dt = re.search(DATE_TIME_RE, start)
@@ -144,7 +136,6 @@ class Query(object):
 
     def parse_responses(self, count_bucket):
         """Parse returned responses.
-
            When paged=True, manage paging using the API token mechanism
            
            When output file is set, write output files for paged output."""
@@ -213,9 +204,8 @@ class Query(object):
                 for i in self.time_series:
                     yield i
 
-
-    def get_activity_set(self):
-        """Generator iterates through the entire activity set from memory or disk."""
+    def get_raw_results(self):
+        """Generator for the entire set of raw JSON responses, works for Tweets or non-Tweets"""
         if self.paged and self.output_file_path is not None:
             for file_name in self.paged_file_list:
                 with codecs.open(file_name,"rb") as f:
@@ -225,11 +215,17 @@ class Query(object):
             for res in self.rec_dict_list:
                 yield res
 
-    def get_list_set(self):
-        """Like get_activity_set, but returns a list containing values parsed by 
-           current Twacs parser configuration."""
-        for rec in self.get_activity_set():
-            yield self.twitter_parser.get_source_list(rec)
+
+    def get_activity_set(self):
+        """Generator iterates through the entire activity set from memory or disk."""
+        if self.paged and self.output_file_path is not None:
+            for file_name in self.paged_file_list:
+                with codecs.open(file_name,"rb") as f:
+                    for res in f:
+                        yield Tweet(json.loads(res.decode('utf-8')))
+        else:
+            for res in self.rec_dict_list:
+                yield Tweet(res)
 
     def execute(self
             , pt_filter
@@ -276,16 +272,13 @@ class Query(object):
         # set up variable to catch the data in 3 formats
         self.time_series = []
         self.rec_dict_list = []
-        self.rec_list_list = []
         self.res_cnt = 0
         # timing
         self.delta_t = 1    # keeps us from crashing 
         # actual oldest tweet before now
         self.oldest_t = datetime.datetime.utcnow()
-        # actual newest tweet more recent that 30 days ago
-        # self.newest_t = datetime.datetime.utcnow() - datetime.timedelta(days=30)
         # search v2: newest date is more recent than 2006-03-01T00:00:00
-        self.newest_t = datetime.datetime.strptime("2006-03-01T00:00:00.000z", TIME_FORMAT_LONG)
+        self.newest_t = datetime.datetime(2006,3,1) 
         #
         for rec in self.parse_responses(count_bucket):
             # parse_responses returns only the last set of activities retrieved, not all paged results.
@@ -300,10 +293,9 @@ class Query(object):
             else:
                 # json activities
                 # keep track of tweet times for time calculation
-                tmp_list = self.twitter_parser.procRecordToList(rec)
-                self.rec_list_list.append(tmp_list)
-                t = datetime.datetime.strptime(tmp_list[POSTED_TIME_IDX], TIME_FORMAT_LONG)
-                tmp_tl_list = [tmp_list[POSTED_TIME_IDX], 1, t]
+                tweet = Tweet(rec)
+                t = tweet.created_at_datetime
+                tmp_tl_list = [tweet.created_at_seconds, 1, t]
                 self.tweet_times_flag = True
             # this list is ***either*** list of buckets or list of tweet times!
             self.time_series.append(tmp_tl_list)

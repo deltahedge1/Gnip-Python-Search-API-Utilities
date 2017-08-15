@@ -7,7 +7,9 @@ This package includes two utilities:
 
 #### Installation
 Install from PyPI with `pip install gapi`
-Or to use the full time line capability, `pip install gapi[timeline]`
+Or to use the full time line capability, `pip install gapi[timeseries]`
+To install locally, `pip install -e .` from the top-level directory,
+or `pip install -e .[timeseries]`
 
 ## Search API
 
@@ -60,15 +62,16 @@ optional arguments:
                         exists and will not be created. This options is
                         available only with -a option. Default is no output
                         files.
-  -t, --search-v2       Using search API v2 endpoint. [This is depricated and
-                        is automatically set based on endpoint.]
 </pre>
 
-##Using a configuration file
+## Using a configuration file
 
 To avoid entering the the -u, -p and -l options for every command, create a configuration file named ".gnip" 
 in the directory where you will run the code. When this file contains the correct parameters, you can omit
 this command line parameters.
+
+The configuration file can either be named ".gnip" and located in the directory where you run the code, or
+you can export the path to the file as the environment variable "GNIP_CONFIG_FILE"
 
 Use this template:
 
@@ -80,7 +83,7 @@ Use this template:
 
     [endpoint]
     # replace with your endpoint
-    url = https://search.gnip.com/accounts/shendrickson/search/wayback.json
+    url = https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json 
 
 ### Use cases
 

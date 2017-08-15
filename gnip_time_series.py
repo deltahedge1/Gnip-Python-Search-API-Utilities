@@ -18,7 +18,6 @@ import calendar
 import codecs
 import csv
 import datetime
-import json
 import logging
 import matplotlib
 import matplotlib.pyplot as plt
@@ -33,6 +32,10 @@ from functools import partial
 from operator import itemgetter
 from scipy import signal
 from search.results import *
+try:
+    import ujson as json
+except ImportError:
+    import json
 
 # fixes an annoying warning that scipy is throwing 
 import warnings
@@ -43,7 +46,6 @@ if sys.version_info[0] == 2:
     import ConfigParser
 elif sys.version_info[0] == 3:
     import configparser as ConfigParser
-    #from imp import reload
 
 # Python 2 specific setup (Py3 the utf-8 stuff is handled)
 if sys.version_info[0] == 2:
@@ -125,7 +127,8 @@ class GnipSearchTimeseries():
         # decode step should not be included for python 3
         if sys.version_info[0] == 2: 
             self.options.filter = self.options.filter.decode("utf-8")
-            self.options.second_filter = self.options.second_filter.decode("utf-8")
+            if self.options.second_filter is not None:
+                self.options.second_filter = self.options.second_filter.decode("utf-8")
         # set up the job
         # over ride config file with command line args if present
         if self.options.user is not None:
@@ -136,16 +139,15 @@ class GnipSearchTimeseries():
             self.stream_url = self.options.stream_url
         
         # search v2 uses a different url
-        if "gnip-api.twitter.com" not in self.stream_url:
+        if "gnip-api.twitter.com" not in self.stream_url and "data-api.twitter.com" not in self.stream_url:
             logging.error("gnipSearch timeline tools require Search V2. Exiting.")
-            logging.error("Your URL should look like: https://gnip-api.twitter.com/search/fullarchive/accounts/<account>/dev.json")
+            logging.error("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.stderr.write("gnipSearch timeline tools require Search V2. Exiting.\n")
-            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/fullarchive/accounts/<account>/dev.json")
+            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.exit(-1)
 
         # set some options that should not be changed for this anaysis
         self.options.paged = True
-        self.options.search_v2 = True
         self.options.max = 500
         self.options.query = False
 
