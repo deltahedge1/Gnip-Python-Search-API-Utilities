@@ -19,7 +19,7 @@ if sys.version_info.major == 2:
 else:
     import configparser
 
-from search.results import * 
+from gapi.results import * 
 
 if (sys.version_info[0]) < 3:
     try:
@@ -29,7 +29,7 @@ if (sys.version_info[0]) < 3:
     except NameError:
         pass
 
-DEFAULT_CONFIG_FILENAME = "./.gnip"
+DEFAULT_CONFIG_FILENAME = "./config/.gnip"
 
 class GnipSearchCMD():
 

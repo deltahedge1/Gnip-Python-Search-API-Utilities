@@ -9,7 +9,7 @@ import time
 import os
 import re
 from tweet_parser.tweet import Tweet
-from .api import *
+from gapi.api import *
 from simple_n_grams.simple_n_grams import SimpleNGrams
 
 if sys.version_info[0] < 3:
