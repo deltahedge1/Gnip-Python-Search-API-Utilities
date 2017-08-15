@@ -433,7 +433,7 @@ optional arguments:
                         User name
   -w OUTPUT_FILE_PATH, --output-file-path OUTPUT_FILE_PATH
                         Create files in ./OUTPUT-FILE-PATH. This path must
-                        exists and will not be created. Default is ./data
+                        exists and will not be created. Default is ./output/data
 
 </pre>
 
@@ -511,7 +511,8 @@ dog OR cat OR hamster OR pet OR vet OR kennel O...             20864710         
 dog OR cat OR puppy OR kitten                                  18410402             20096764   38507166
 dog OR cat                                                     16268900             17662083   33930983
 dog                                                             8096512              9232320   17328832
-/pre>
+
+</pre>
 
 So for this rule set, the redundancy is 89471832/43695763. - 1 = 1.0476088722835666 and the
 3 rule approximation for the corpus gives 38507166/43695763. = 0.8812562902265832 or 88% of
@@ -530,9 +531,9 @@ depends on a number of other large packges:
 * pandas
 
 #### Notes
-* Unlike other utilities provided, the defualt file path is set to "./data" to provide 
-full accsess to output results. Therefore, you should create the path "data" in the directory 
+* Unlike other utilities provided, the defualt file path is set to "./output/data" to provide 
+full accsess to output results. Therefore, you should create the path "./output/data" in the directory 
 where you run the utility. This will contain the data ouputs.
 
 ## License
-Gnip-Python-Search-API-Utilities by Scott Hendrickson, Josh Montague and Jeff Kolb is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License. This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
+Gnip-Python-Search-API-Utilities by Scott Hendrickson, Josh Montague, Jeff Kolb and Fiona Pigott is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License. This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
