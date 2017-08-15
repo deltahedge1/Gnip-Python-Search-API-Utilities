@@ -68,6 +68,9 @@ To avoid entering the the -u, -p and -l options for every command, create a conf
 in the directory where you will run the code. When this file contains the correct parameters, you can omit
 this command line parameters.
 
+The configuration file can either be named ".gnip" and located in the directory where you run the code, or
+you can export the path to the file as the environment variable "GNIP_CONFIG_FILE"
+
 Use this template:
 
     # export GNIP_CONFIG_FILE=<location and name of this file>
