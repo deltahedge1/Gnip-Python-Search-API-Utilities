@@ -371,11 +371,11 @@ Example output from command:
     
     gnip_time_series.py -f "earthquake" -s2015-10-01T00:00:00 -e2015-11-18T00:00:00 -t -bhour
 
-![Image of Earthquake Timeline](/img/earthquake_time_line.png)
+![Image of Earthquake Timeline](/output/img/earthquake_time_line.png)
 
-![Image of Earthquake Trend and Variation](/img/earthquake_cycle_trend_line.png)
+![Image of Earthquake Trend and Variation](/output/img/earthquake_cycle_trend_line.png)
 
-![Image of Earthquake Peaks ](/img/earthquake_time_peaks_line.png)
+![Image of Earthquake Peaks ](/output/img/earthquake_time_peaks_line.png)
 
 #### Dependencies
 Gnip's Search 2.0 API access is required.
