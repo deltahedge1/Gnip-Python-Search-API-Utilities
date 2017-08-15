@@ -60,8 +60,6 @@ optional arguments:
                         exists and will not be created. This options is
                         available only with -a option. Default is no output
                         files.
-  -t, --search-v2       Using search API v2 endpoint. [This is depricated and
-                        is automatically set based on endpoint.]
 </pre>
 
 ##Using a configuration file
@@ -80,7 +78,7 @@ Use this template:
 
     [endpoint]
     # replace with your endpoint
-    url = https://search.gnip.com/accounts/shendrickson/search/wayback.json
+    url = https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json 
 
 ### Use cases
 
