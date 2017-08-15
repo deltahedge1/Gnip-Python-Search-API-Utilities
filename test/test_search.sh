@@ -5,7 +5,7 @@
 ###
 un=<email>
 paswd=<password>
-url=<endpoint>
+url=<endpoint url>
 
 rulez="bieber OR bieber"
 if [ $(uname) == "Linux" ]; then
@@ -30,8 +30,8 @@ gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -n10 -s"$dt2" -
 gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -n10 -s"$dt2" -e"$dt1" geo
 gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -n10 -s"$dt2" -e"$dt1" wordcount
 gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -n10 -s"$dt2" -e"$dt1" users
-gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -s"$dt3" -e"$dt1" -aw ./data json
-gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -s"$dt3" -e"$dt1" -aw ./data geo
+gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -s"$dt3" -e"$dt1" -aw ../output/data json
+gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -s"$dt3" -e"$dt1" -aw ../output/data geo
 gnip_search.py -f"has:geo $rulez" -u ${un} -p ${paswd} -l ${url} -s"$dt3" -e"$dt1" -a users
 
 export GNIP_CONFIG_FILE=../config/.gnip
@@ -47,5 +47,5 @@ gnip_search.py -f"has:geo $rulez"  -n10 -s"$dt2" -e"$dt1" json
 gnip_search.py -f"has:geo $rulez"  -n10 -s"$dt2" -e"$dt1" geo
 gnip_search.py -f"has:geo $rulez"  -n10 -s"$dt2" -e"$dt1" wordcount
 gnip_search.py -f"has:geo $rulez"  -n10 -s"$dt2" -e"$dt1" users
-gnip_search.py -f"has:geo $rulez"  -s"$dt3" -e"$dt1" -aw ./data json
+gnip_search.py -f"has:geo $rulez"  -s"$dt3" -e"$dt1" -aw ../output/data json
 
