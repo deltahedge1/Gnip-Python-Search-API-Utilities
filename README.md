@@ -72,10 +72,10 @@ optional arguments:
 ## Using a configuration file
 
 To avoid entering the the -u, -p and -l options for every command, create a configuration file named ".gnip" 
-in the directory where you will run the code. When this file contains the correct parameters, you can omit
+in the directory at "./config/" from where you will run the code. When this file contains the correct parameters, you can omit
 this command line parameters.
 
-The configuration file can either be named ".gnip" and located in the directory where you run the code, or
+The configuration file can either be named ".gnip" and located in "./config/", or
 you can export the path to the file as the environment variable "GNIP_CONFIG_FILE"
 
 Use this template:
