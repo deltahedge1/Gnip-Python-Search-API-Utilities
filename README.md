@@ -11,6 +11,11 @@ Or to use the full time line capability, `pip install gapi[timeseries]`
 To install locally, `pip install -e .` from the top-level directory,
 or `pip install -e .[timeseries]`
 
+This installs the package and the 3 utility scripts from the `tools/` directory: 
+- `gnip_search.py` 
+- `gnip_time_series.py`
+- `gnip_filter_analysis.py`
+
 ## Search API
 
 Usage:
@@ -93,7 +98,7 @@ Return full, enriched, Activity Streams-format JSON payloads from the Search API
 
 Note: If you have a GNIP_CONFIG_FILE defined (try echo $GNIP_CONFIG_FILE, it should return the path to the config that you created), -u and -p arguments are not necessary.
 
-    $ ./gnip_search.py -uXXX -pXXX -f"from:Gnip" json
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"from:Gnip" json
     {"body": "RT @bbi: The #BigBoulder bloggers have been busy. Head to http://t.co/Rwve0dVA82 for recaps of the Sina Weibo, Tumblr &amp; Academic Research s\u2026", "retweetCount": 3, "generator": {"link": "http://twitter.com", "displayName": "Twitter Web Client"}, "twitter_filter_level": "medium", "gnip": {"klout_profile": {"link": "http://klout.com/user/id/651348", "topics": [{"link": "http://klout.com/topic/id/5144818194631006088", "displayName": "Software", "
     ...
 
@@ -107,7 +112,7 @@ option will collect up to 1/2 M tweets, which may take hours and be very costly.
 
 Return top 1- and 2-grams - with counts and document frequency - from matching activities. Can modify the settings within simple ngrams package (``sngrams``) to modify the range of output.
 
-    $ ./gnip_search.py -uXXX -pXXX -f"world cup" -n200 wordcount
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"world cup" -n200 wordcount
     ------------------------------------------------------------
                      terms --   mentions     activities (200)
     ------------------------------------------------------------
@@ -159,7 +164,7 @@ Return top 1- and 2-grams - with counts and document frequency - from matching a
 
 Return the most common usernames occuring in matching activities
 
-    $ ./gnip_search.py -uXXX -pXXX -f"obama" -n500 users
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"obama" -n500 users
     ------------------------------------------------------------
                      terms --   mentions     activities (500)
     ------------------------------------------------------------
@@ -191,7 +196,7 @@ Return the most common usernames occuring in matching activities
 
 Calculate the approximate activity rate from matched activities.
 
-    $ ./gnip_search.py -uXXX -pXXX -f"from:jrmontag" -n500 rate
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"from:jrmontag" -n500 rate
     ------------------------------------------------------------
        PowerTrack Rule: "from:jrmontag"
     Oldest Tweet (UTC): 2014-05-13 02:14:44
@@ -206,7 +211,7 @@ Calculate the approximate activity rate from matched activities.
 
 Return the most frequently observed links - count and document frequency - in matching activities
 
-    $ ./gnip_search.py -uXXX -pXXX -f"from:drskippy" -n500 links
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"from:drskippy" -n500 links
     ---------------------------------------------------------------------------------------------------------------------------------
                                                                                                    links --   mentions     activities (31)
     ---------------------------------------------------------------------------------------------------------------------------------
@@ -238,7 +243,7 @@ Return the most frequently observed links - count and document frequency - in ma
 
 Return a count timeline of matching activities. Without further options, results are returned in JSON format...
 
-    $ ./gnip_search.py -uXXX -pXXX -f"@cia"  timeline
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"@cia"  timeline
     {"results": [{"count": 32, "timePeriod": "201405130000"}, {"count": 31, "timePeriod": "201405140000"}, 
 
 Results can be returned in comma-delimited format with the ``-c`` option:
@@ -253,7 +258,7 @@ Results can be returned in comma-delimited format with the ``-c`` option:
 
 And bucket size can be adjusted with ``-b``:
 
-    $ ./gnip_search.py -uXXX -pXXX -f"@cia"  timeline -c -b hour
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"@cia"  timeline -c -b hour
     ...
     2014-06-06T11:00:00,0
     2014-06-06T12:00:00,0
@@ -279,7 +284,7 @@ And bucket size can be adjusted with ``-b``:
     
 Return JSON payloads with the latitude, longitude, timestamp, and activity id for matching activities 
 
-    $ ./gnip_search.py -uXXX -pXXX -f"vamos has:geo" geo 
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"vamos has:geo" geo 
     {"latitude": 4.6662819, "postedTime": "2014-06-12T18:52:48", "id": "477161613775351808", "longitude": -74.0557122}
     {"latitude": null, "postedTime": "2014-06-12T18:52:48", "id": "477161614354165760", "longitude": null}
     {"latitude": -24.4162955, "postedTime": "2014-06-12T18:52:47", "id": "477161609786568704", "longitude": -53.5296426}
@@ -290,7 +295,7 @@ Return JSON payloads with the latitude, longitude, timestamp, and activity id fo
 
 This can also be output in delimited format:
 
-    $ ./gnip_search.py -uXXX -pXXX -f"vamos has:geo" geo -c 
+    $ ./tools/gnip_search.py -uXXX -pXXX -f"vamos has:geo" geo -c 
     477161971364933632,2014-06-12T18:54:13,-6.350394,38.926667
     477161943015636992,2014-06-12T18:54:07,-46.60175585,-23.63230955
     477161939647623168,2014-06-12T18:54:06,-49.0363085,-26.6042339
@@ -303,7 +308,7 @@ This can also be output in delimited format:
 
 Return the list of all of the users ids represented by matching activities
 
-    $ ./gnip_search.py -n15 -f "call mom" audience
+    $ ./tools/gnip_search.py -n15 -f "call mom" audience
     --------------------------------------------------------------------------------
     229152598
     458139782
@@ -371,11 +376,11 @@ Example output from command:
     
     gnip_time_series.py -f "earthquake" -s2015-10-01T00:00:00 -e2015-11-18T00:00:00 -t -bhour
 
-![Image of Earthquake Timeline](/img/earthquake_time_line.png)
+![Image of Earthquake Timeline](/output/img/earthquake_time_line.png)
 
-![Image of Earthquake Trend and Variation](/img/earthquake_cycle_trend_line.png)
+![Image of Earthquake Trend and Variation](/output/img/earthquake_cycle_trend_line.png)
 
-![Image of Earthquake Peaks ](/img/earthquake_time_peaks_line.png)
+![Image of Earthquake Peaks ](/output/img/earthquake_time_peaks_line.png)
 
 #### Dependencies
 Gnip's Search 2.0 API access is required.
@@ -390,9 +395,9 @@ depends on a number of other large packges:
 * scipy
 
 #### Notes
-* You should create the path "plots" in the directory where you run the utility. This will contain the plots of
+* You should create the path "output/plots" in the directory where you run the utility. This will contain the plots of
 time series and analysis
-* This utility creates an extensive log file named time_series.log. It contains many details of parameter
+* This utility creates an extensive log file named log/time_series.log. It contains many details of parameter
 settings and intermediate outputs.
 * On a remote machine or server, change your matplotlib backend by creating a local matplotlibrc file. Create Gnip-Python-Search-API-Utilities/matplotlibrc:
 
@@ -404,7 +409,7 @@ settings and intermediate outputs.
 
 ### Filter Analysis
 
-$ ./gnip_filter_analysis.py -h
+$ ./tools/gnip_filter_analysis.py -h
 <pre>
 usage: gnip_filter_analysis.py [-h] [-j JOB_DESCRIPTION] [-b COUNT_BUCKET]
                                [-l STREAM_URL] [-p PASSWORD] [-r RANK_SAMPLE]
@@ -433,7 +438,7 @@ optional arguments:
                         User name
   -w OUTPUT_FILE_PATH, --output-file-path OUTPUT_FILE_PATH
                         Create files in ./OUTPUT-FILE-PATH. This path must
-                        exists and will not be created. Default is ./data
+                        exists and will not be created. Default is ./output/data
 
 </pre>
 
@@ -490,7 +495,7 @@ job.json:
 Output:
 
 <pre>
-$ ./gnip_filter_analysis.py -r 3
+$ ./tools/gnip_filter_analysis.py -r 3
 ...
 start_date                                          2015-05-01T00:00:00  2015-11-01T00:00:00       All
 filter                                                                                                
@@ -511,7 +516,8 @@ dog OR cat OR hamster OR pet OR vet OR kennel O...             20864710         
 dog OR cat OR puppy OR kitten                                  18410402             20096764   38507166
 dog OR cat                                                     16268900             17662083   33930983
 dog                                                             8096512              9232320   17328832
-/pre>
+
+</pre>
 
 So for this rule set, the redundancy is 89471832/43695763. - 1 = 1.0476088722835666 and the
 3 rule approximation for the corpus gives 38507166/43695763. = 0.8812562902265832 or 88% of
@@ -530,9 +536,9 @@ depends on a number of other large packges:
 * pandas
 
 #### Notes
-* Unlike other utilities provided, the defualt file path is set to "./data" to provide 
-full accsess to output results. Therefore, you should create the path "data" in the directory 
+* Unlike other utilities provided, the defualt file path is set to "./output/data" to provide 
+full accsess to output results. Therefore, you should create the path "./output/data" in the directory 
 where you run the utility. This will contain the data ouputs.
 
 ## License
-Gnip-Python-Search-API-Utilities by Scott Hendrickson, Josh Montague and Jeff Kolb is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License. This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
+Gnip-Python-Search-API-Utilities by Scott Hendrickson, Josh Montague, Jeff Kolb and Fiona Pigott is licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported License. This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.

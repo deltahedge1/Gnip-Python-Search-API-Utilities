@@ -31,7 +31,7 @@ import time
 from functools import partial
 from operator import itemgetter
 from scipy import signal
-from search.results import *
+from gapi.results import *
 try:
     import ujson as json
 except ImportError:
@@ -55,10 +55,10 @@ if sys.version_info[0] == 2:
 
 # basic defaults
 FROM_PICKLE = False
-DEFAULT_CONFIG_FILENAME = os.path.join(".",".gnip")
+DEFAULT_CONFIG_FILENAME = os.path.join(".","config",".gnip")
 DATE_FMT = "%Y%m%d%H%M"
 DATE_FMT2 = "%Y-%m-%dT%H:%M:%S"
-LOG_FILE_PATH = os.path.join(".","time_series.log")
+LOG_FILE_PATH = os.path.join(".","log","time_series.log")
 
 # set up simple logging
 logging.basicConfig(filename=LOG_FILE_PATH,level=logging.DEBUG)
@@ -75,7 +75,8 @@ MIN_PEAK_WIDTH = 1              # min peak width in periods
 SEARCH_PEAK_WIDTH = 3           # min peak width in periods
 N_MOVING = 4                    # average over buckets
 OUTLIER_FRAC = 0.8              # cut off values over 80% above or below the average
-PLOTS_PREFIX = os.path.join(".","plots")
+PLOTS_PREFIX = os.path.join(".","output","plots")
+TSERIES_DATA_PREFIX = os.path.join(".","output","time_series")
 PLOT_DELTA_Y = 1.2              # spacing of y values in dotplot
 
 logging.debug("CHAR_UPPER_CUTOFF={},TWEET_SAMPLE={},MIN_SNR={},MAX_N_PEAKS={},MAX_PEAK_WIDTH={},MIN_PEAK_WIDTH={},SEARCH_PEAK_WIDTH={},N_MOVING={},OUTLIER_FRAC={},PLOTS_PREFIX={},PLOT_DELTA_Y={}".format(
@@ -619,8 +620,8 @@ if __name__ == "__main__":
     import pickle
     g = GnipSearchTimeseries()
     if FROM_PICKLE:
-        ts = pickle.load(open("./time_series.pickle", "rb"))
+        ts = pickle.load(open(TSERIES_DATA_PREFIX + "time_series.pickle", "rb"))
     else:
         ts = g.get_results()
-        pickle.dump(ts,open("./time_series.pickle", "wb"))
+        pickle.dump(ts,open(TSERIES_DATA_PREFIX + "/time_series.pickle", "wb"))
     g.plots(ts)

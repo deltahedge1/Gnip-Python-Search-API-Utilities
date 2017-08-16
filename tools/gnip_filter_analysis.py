@@ -10,24 +10,34 @@ import datetime
 import time
 import numbers
 import os
-import ConfigParser
+if sys.version_info.major == 2:
+    import ConfigParser as configparser
+else:
+    import configparser
 import logging
 try:
-        from cStringIO import StringIO
-except:
+    from cStringIO import StringIO
+except ImportError:
+    try:
         from StringIO import StringIO
+    except ModuleNotFoundError:
+        from io import StringIO
 
 import pandas as pd
 import numpy as np
 
-from search.results import *
+from gapi.results import *
 
-reload(sys)
-sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+if (sys.version_info[0]) < 3:
+    try:
+        reload(sys)
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+        sys.stdin = codecs.getreader('utf-8')(sys.stdin)
+    except NameError:
+        pass
 
-DEFAULT_CONFIG_FILENAME = "./.gnip"
-LOG_FILE_PATH = os.path.join(".","filter_analysis.log")
+DEFAULT_CONFIG_FILENAME = os.path.join(".","config",".gnip")
+LOG_FILE_PATH = os.path.join(".","log","filter_analysis.log")
 
 # set up simple logging
 logging.basicConfig(filename=LOG_FILE_PATH,level=logging.DEBUG)
@@ -57,8 +67,8 @@ class GnipSearchCMD():
                 self.user = config_from_file.get('creds', 'un')
                 self.password = config_from_file.get('creds', 'pwd')
                 self.stream_url = config_from_file.get('endpoint', 'url')
-            except (ConfigParser.NoOptionError,
-                    ConfigParser.NoSectionError) as e:
+            except (configparser.NoOptionError,
+                    configparser.NoSectionError) as e:
                 logging.debug(u"Error reading configuration file ({}), ignoring configuration file.".format(e))
         # parse the command line options
         self.options = self.args().parse_args()
@@ -72,11 +82,9 @@ class GnipSearchCMD():
             self.stream_url = self.options.stream_url
         #
         # Search v2 uses a different url
-        if "data-api.twitter.com" in self.stream_url:
-            self.options.search_v2 = True
-        else:
-            logging.debug(u"Requires search v2, but your URL appears to point to a v1 endpoint. Exiting.")
-            print >> sys.stderr, "Requires search v2, but your URL appears to point to a v1 endpoint. Exiting."
+        if "gnip-api.twitter.com" not in self.stream_url and "data-api.twitter.com" not in self.stream_url:
+            sys.stderr.write("gnipSearch tools require Search V2. Exiting.\n")
+            sys.stderr.write("Your URL should look like: https://gnip-api.twitter.com/search/<30day or fullarchive>/accounts/<account>/<stream>.json")
             sys.exit(-1)
         # defaults
         self.options.paged = True
@@ -102,7 +110,7 @@ class GnipSearchCMD():
         self.job = self.read_job_description(self.options.job_description)
 
     def config_file(self):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         # (1) default file name precidence
         config.read(DEFAULT_CONFIG_FILENAME)
         if not config.has_section("creds"):
@@ -120,8 +128,8 @@ class GnipSearchCMD():
                 description="Creates an aggregated filter statistics summary from \
                     filter rules and date periods in the job description.")
         twitter_parser.add_argument("-j", "--job_description", dest="job_description",
-                default="./job.json",
-                help="JSON formatted job description file")
+                default=os.path.join(".","config","job.json"),
+                help="JSON formatted job description file, default is config/job.json")
         twitter_parser.add_argument("-b", "--bucket", dest="count_bucket", 
                 default="day", 
                 help="Bucket size for counts query. Options are day, hour, \
@@ -150,9 +158,9 @@ class GnipSearchCMD():
         twitter_parser.add_argument("-u", "--user-name", dest="user", default=None,
                 help="User name")
         twitter_parser.add_argument("-w", "--output-file-path", dest="output_file_path", 
-                default="./data",
+                default=os.path.join(".","output","data"),
                 help="Create files in ./OUTPUT-FILE-PATH. This path must exists and will \
-                    not be created. Default is ./data")
+                    not be created. Default is ./output/data")
 
         return twitter_parser
 
@@ -182,7 +190,6 @@ class GnipSearchCMD():
                 , end=end_date
                 , count_bucket=self.options.count_bucket
                 , show_query=self.options.query
-                , search_v2=self.options.search_v2
                 )
             for x in results.get_time_series():
                 res.append(x + [rule, tag,  start_date, end_date, base_rule])
@@ -214,17 +221,21 @@ class GnipSearchCMD():
         if pre != "":
             pre += "_"
         logging.debug(u"Writing raw and pivot data to {}...".format(self.options.output_file_path))
+        if sys.version_info[0] == 2:
+            write_mode = "wb"
+        else:
+            write_mode = "w"
         with open("{}/{}_{}raw_data.csv".format(
                     self.options.output_file_path
                     , datetime.datetime.now().strftime("%Y%m%d_%H%M")
                     , pre)
-                , "wb") as f:
+                , write_mode) as f:
             f.write(df.to_csv(encoding='utf-8'))
         with open("{}/{}_{}pivot_data.csv".format(
                     self.options.output_file_path
                     , datetime.datetime.now().strftime("%Y%m%d_%H%M")
                     , pre)
-                , "wb") as f:
+                , write_mode) as f:
             f.write(pdf.to_csv(encoding='utf-8'))
 
     def get_result(self):
