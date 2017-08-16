@@ -6,7 +6,11 @@ This package includes two utilities:
  - Timeseries analysis and plotting
 
 #### Installation
-Install from PyPI with `pip install gapi`
+
+*Important note: as of 8/16/2017, the PyPi hosted package is out of date.
+Please clone the repositority and install locally until further notice.*
+
+Install from PyPi with `pip install gapi`
 Or to use the full time line capability, `pip install gapi[timeseries]`
 To install locally, `pip install -e .` from the top-level directory,
 or `pip install -e .[timeseries]`
