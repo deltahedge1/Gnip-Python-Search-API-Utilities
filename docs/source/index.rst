@@ -5,11 +5,14 @@
 
 Welcome to Gnip Python Search API Utilities's documentation!
 ============================================================
+.. include:: README.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
+   self
+   gapi
 
 
 Indices and tables
