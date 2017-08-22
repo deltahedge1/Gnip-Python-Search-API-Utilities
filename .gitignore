@@ -40,3 +40,6 @@ nosetests.xml
 .project
 .pydevproject
 MANIFEST
+
+docs/_build/
+docs/build/
