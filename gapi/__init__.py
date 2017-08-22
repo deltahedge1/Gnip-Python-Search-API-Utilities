@@ -1,2 +1,2 @@
-__all__ = ['api'
-            , 'results']
+__all__ = ['api',
+           'results']
