@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>gapi package &#8212; Gnip Python Search API Utilities 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gapi-package">
+<h1>gapi package<a class="headerlink" href="#gapi-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-gapi.api">
+<span id="gapi-api-module"></span><h2>gapi.api module<a class="headerlink" href="#module-gapi.api" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gapi.api.Query">
+<em class="property">class </em><code class="descclassname">gapi.api.</code><code class="descname">Query</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>stream_url</em>, <em>paged=False</em>, <em>output_file_path=None</em>, <em>hard_max=None</em>, <em>return_incomplete=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Object represents a single search API query and provides utilities for
+managing parameters, executing the query and parsing the results.</p>
+<dl class="method">
+<dt id="gapi.api.Query.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><em>pt_filter</em>, <em>max_results=100</em>, <em>start=None</em>, <em>end=None</em>, <em>count_bucket=None</em>, <em>show_query=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a query with filter, maximum results, start and end dates.</p>
+<p>Count_bucket determines the bucket size for the counts endpoint.
+If the count_bucket variable is set to a valid bucket size such
+as minute, day or week, then the activity counts endpoint will
+Otherwise, the data endpoint is used.
+:param pt_filter: PowerTrack filter for this query
+:type pt_filter: str
+:param max_results: max results returned from the API for this query
+:type max_results: int
+:param start: start date
+:param end: end date
+:param count_bucket: [&#8216;day&#8217;, &#8216;month&#8217;, &#8216;hour&#8217;, None] - None specifies json format
+:param show_query: prints the query to stdout
+:type show_query: boolean</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.get_activity_set">
+<code class="descname">get_activity_set</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.get_activity_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.get_activity_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator iterates through the entire activity set from memory or disk.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.get_rate">
+<code class="descname">get_rate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.get_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.get_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns rate from last query executed</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.get_raw_results">
+<code class="descname">get_raw_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.get_raw_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.get_raw_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator for the entire set of raw JSON responses, works for Tweets or non-Tweets</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.get_time_series">
+<code class="descname">get_time_series</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.get_time_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.get_time_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a time series of tweets.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.name_munger">
+<code class="descname">name_munger</code><span class="sig-paren">(</span><em>input_rule</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.name_munger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.name_munger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to create a valid, friendly file name base
+string from an input rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input_rule</strong> (<em>str</em>) &#8211; a gnip query rule</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.parse_responses">
+<code class="descname">parse_responses</code><span class="sig-paren">(</span><em>count_bucket</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.parse_responses"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.parse_responses" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse returned responses.
+When paged=True, manage paging using the API token mechanism</p>
+<p>When output file is set, write output files for paged output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>count_bucket</strong> (<em>str</em>) &#8211; bucket defining the counting window. [&#8216;day&#8217;, &#8216;hour&#8217;, &#8216;minute&#8217;]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.request">
+<code class="descname">request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.request" title="Permalink to this definition">¶</a></dt>
+<dd><p>HTTP request based on class variables for rule_payload,
+stream_url, user and password.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.api.Query.set_dates">
+<code class="descname">set_dates</code><span class="sig-paren">(</span><em>start</em>, <em>end</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#Query.set_dates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.Query.set_dates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility function to set dates from strings. Given string-formated
+dates for start date time and end date time, extract the required
+date string format for use in the API query and make sure they
+are valid dates.
+Sets class from_date and to_date date strings.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="gapi.api.main">
+<code class="descclassname">gapi.api.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/api.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.api.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-gapi.results">
+<span id="gapi-results-module"></span><h2>gapi.results module<a class="headerlink" href="#module-gapi.results" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gapi.results.Results">
+<em class="property">class </em><code class="descclassname">gapi.results.</code><code class="descname">Results</code><span class="sig-paren">(</span><em>user</em>, <em>password</em>, <em>stream_url</em>, <em>paged=False</em>, <em>output_file_path=None</em>, <em>pt_filter=None</em>, <em>max_results=100</em>, <em>start=None</em>, <em>end=None</em>, <em>count_bucket=None</em>, <em>show_query=False</em>, <em>hard_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Class for aggregating and accessing search result sets and
+subsets.  Returns derived values for the query specified.</p>
+<dl class="method">
+<dt id="gapi.results.Results.get_activities">
+<code class="descname">get_activities</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_activities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_activities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator of query tweet results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_frequency_items">
+<code class="descname">get_frequency_items</code><span class="sig-paren">(</span><em>size=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_frequency_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_frequency_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the token list structure from the last query</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_geo">
+<code class="descname">get_geo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_geo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_geo" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_raw_results">
+<code class="descname">get_raw_results</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_raw_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_raw_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator of query results</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_time_series">
+<code class="descname">get_time_series</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_time_series"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_time_series" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator of time series for query results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_top_grams">
+<code class="descname">get_top_grams</code><span class="sig-paren">(</span><em>n=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_top_grams"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_top_grams" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_top_links">
+<code class="descname">get_top_links</code><span class="sig-paren">(</span><em>n=20</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_top_links"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_top_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the links most shared in the data set retrieved in
+the order of how many times each was shared.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_top_users">
+<code class="descname">get_top_users</code><span class="sig-paren">(</span><em>n=50</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_top_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_top_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the users  tweeting the most in the data set retrieved
+in the data set. Users are returned in descending order of how
+many times they were tweeted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gapi.results.Results.get_users">
+<code class="descname">get_users</code><span class="sig-paren">(</span><em>n=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/gapi/results.html#Results.get_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gapi.results.Results.get_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the user ids for the tweets collected</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gapi">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gapi" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gapi package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-gapi.api">gapi.api module</a></li>
+<li><a class="reference internal" href="#module-gapi.results">gapi.results module</a></li>
+<li><a class="reference internal" href="#module-gapi">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/gapi.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, TW-DDIS.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/gapi.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

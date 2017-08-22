@@ -1,0 +1,679 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Gnip Python Search API Utilities &#8212; Gnip Python Search API Utilities 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gnip-python-search-api-utilities">
+<h1>Gnip Python Search API Utilities<a class="headerlink" href="#gnip-python-search-api-utilities" title="Permalink to this headline">¶</a></h1>
+<p>This package includes two utilities: - Gnip Search API interactions
+include Search V2 and paging support - Timeseries analysis and plotting</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Install from PyPI with <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">gapi</span></code> Or to use the full time line
+capability, <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">gapi[timeseries]</span></code> To install locally,
+<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> from the top-level directory, or
+<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[timeseries]</span></code></p>
+<p>This installs the package and the 3 utility scripts from the <code class="docutils literal"><span class="pre">tools/</span></code>
+directory: - <code class="docutils literal"><span class="pre">gnip_search.py</span></code> - <code class="docutils literal"><span class="pre">gnip_time_series.py</span></code> -
+<code class="docutils literal"><span class="pre">gnip_filter_analysis.py</span></code></p>
+<div class="section" id="search-api">
+<h3>Search API<a class="headerlink" href="#search-api" title="Permalink to this headline">¶</a></h3>
+<p>Usage:</p>
+<p>$ gnip_search.py -h</p>
+<pre>
+usage: gnip_search.py [-h] [-a] [-c] [-b COUNT_BUCKET] [-e END] [-f FILTER]
+                      [-l STREAM_URL] [-n MAX] [-N HARD_MAX] [-p PASSWORD]
+                      [-q] [-s START] [-u USER] [-w OUTPUT_FILE_PATH] [-t]
+                      USE_CASE
+
+GnipSearch supports the following use cases: ['json', 'wordcount', 'users',
+'rate', 'links', 'timeline', 'geo', 'audience']
+
+positional arguments:
+  USE_CASE              Use case for this search.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a, --paged           Paged access to ALL available results (Warning: this
+                        makes many requests)
+  -c, --csv             Return comma-separated 'date,counts' or geo data.
+  -b COUNT_BUCKET, --bucket COUNT_BUCKET
+                        Bucket size for counts query. Options are day, hour,
+                        minute (default is 'day').
+  -e END, --end-date END
+                        End of datetime window, format 'YYYY-mm-DDTHH:MM'
+                        (default: most recent activities)
+  -f FILTER, --filter FILTER
+                        PowerTrack filter rule (See: http://support.gnip.com/c
+                        ustomer/portal/articles/901152-powertrack-operators)
+  -l STREAM_URL, --stream-url STREAM_URL
+                        Url of search endpoint. (See your Gnip console.)
+  -n MAX, --results-max MAX
+                        Maximum results to return per page (default 100; max
+                        500)
+  -N HARD_MAX, --hard-max HARD_MAX
+                        Maximum results to return for all pages; see -a option
+  -p PASSWORD, --password PASSWORD
+                        Password
+  -q, --query           View API query (no data)
+  -s START, --start-date START
+                        Start of datetime window, format 'YYYY-mm-DDTHH:MM'
+                        (default: 30 days ago)
+  -u USER, --user-name USER
+                        User name
+  -w OUTPUT_FILE_PATH, --output-file-path OUTPUT_FILE_PATH
+                        Create files in ./OUTPUT-FILE-PATH. This path must
+                        exists and will not be created. This options is
+                        available only with -a option. Default is no output
+                        files.
+</pre></div>
+<div class="section" id="using-a-configuration-file">
+<h3>Using a configuration file<a class="headerlink" href="#using-a-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>To avoid entering the the -u, -p and -l options for every command,
+create a configuration file named &#8221;.gnip&#8221; in the directory where you
+will run the code. When this file contains the correct parameters, you
+can omit this command line parameters.</p>
+<p>The configuration file can either be named &#8221;.gnip&#8221; and located in the
+directory where you run the code, or you can export the path to the file
+as the environment variable &#8220;GNIP_CONFIG_FILE&#8221;</p>
+<p>Use this template:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1"># export GNIP_CONFIG_FILE=&lt;location and name of this file&gt;</span>
+<span class="c1">#</span>
+<span class="p">[</span><span class="n">creds</span><span class="p">]</span>
+<span class="n">un</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">email</span> <span class="n">use</span> <span class="k">for</span> <span class="n">service</span><span class="o">&gt;</span>
+<span class="n">pwd</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">password</span><span class="o">&gt;</span>
+
+<span class="p">[</span><span class="n">endpoint</span><span class="p">]</span>
+<span class="c1"># replace with your endpoint</span>
+<span class="n">url</span> <span class="o">=</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gnip</span><span class="o">-</span><span class="n">api</span><span class="o">.</span><span class="n">twitter</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">search</span><span class="o">/&lt;</span><span class="mi">30</span><span class="n">day</span> <span class="ow">or</span> <span class="n">fullarchive</span><span class="o">&gt;/</span><span class="n">accounts</span><span class="o">/&lt;</span><span class="n">account</span><span class="o">&gt;/&lt;</span><span class="n">stream</span><span class="o">&gt;.</span><span class="n">json</span>
+</pre></div>
+</div>
+<div class="section" id="use-cases">
+<h4>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h4>
+</div>
+</div>
+</div>
+<div class="section" id="json">
+<h2>JSON<a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h2>
+<p>Return full, enriched, Activity Streams-format JSON payloads from the
+Search API endpoint. Run
+Gnip-Python-Search-API-Utilities/gnip_search.py from
+Gnip-Python-Search-API-Utilities:</p>
+<p>Note: If you have a GNIP_CONFIG_FILE defined (try echo
+$GNIP_CONFIG_FILE, it should return the path to the config that you
+created), -u and -p arguments are not necessary.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;from:Gnip&quot; json
+{&quot;body&quot;: &quot;RT @bbi: The #BigBoulder bloggers have been busy. Head to http://t.co/Rwve0dVA82 for recaps of the Sina Weibo, Tumblr &amp;amp; Academic Research s\u2026&quot;, &quot;retweetCount&quot;: 3, &quot;generator&quot;: {&quot;link&quot;: &quot;http://twitter.com&quot;, &quot;displayName&quot;: &quot;Twitter Web Client&quot;}, &quot;twitter_filter_level&quot;: &quot;medium&quot;, &quot;gnip&quot;: {&quot;klout_profile&quot;: {&quot;link&quot;: &quot;http://klout.com/user/id/651348&quot;, &quot;topics&quot;: [{&quot;link&quot;: &quot;http://klout.com/topic/id/5144818194631006088&quot;, &quot;displayName&quot;: &quot;Software&quot;, &quot;
+...
+</pre></div>
+</div>
+<p><em>Notes</em></p>
+<p><code class="docutils literal"><span class="pre">-a</span></code> option (paging) collects <em>all</em> results before printing to
+stdout/file and also forces <code class="docutils literal"><span class="pre">-n</span> <span class="pre">500</span></code> per request. The paging option
+will collect up to 1/2 M tweets, which may take hours and be very
+costly.</p>
+</div>
+<div class="section" id="wordcount">
+<h2>Wordcount<a class="headerlink" href="#wordcount" title="Permalink to this headline">¶</a></h2>
+<p>Return top 1- and 2-grams - with counts and document frequency - from
+matching activities. Can modify the settings within simple ngrams
+package (<code class="docutils literal"><span class="pre">sngrams</span></code>) to modify the range of output.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;world cup&quot; -n200 wordcount
+------------------------------------------------------------
+                 terms --   mentions     activities (200)
+------------------------------------------------------------
+                 world --  203  11.41%  198  99.00%
+                   cup --  203  11.41%  198  99.00%
+              ceremony --   46   2.59%   45  22.50%
+               opening --   45   2.53%   45  22.50%
+                  fifa --   25   1.41%   25  12.50%
+                  2014 --   22   1.24%   22  11.00%
+                brazil --   20   1.12%   19   9.50%
+              watching --   15   0.84%   12   6.00%
+                 ready --   14   0.79%   14   7.00%
+               tonight --   11   0.62%   11   5.50%
+                  game --   11   0.62%   11   5.50%
+                  wait --   10   0.56%   10   5.00%
+               million --   10   0.56%    8   4.00%
+                 first --   10   0.56%   10   5.00%
+             indonesia --   10   0.56%    2   1.00%
+                  time --   10   0.56%    9   4.50%
+         niallofficial --    9   0.51%    9   4.50%
+                  here --    9   0.51%    9   4.50%
+            majooooorr --    9   0.51%    9   4.50%
+         braziiiilllll --    9   0.51%    9   4.50%
+             world cup --  198  12.54%  196  98.00%
+      opening ceremony --   33   2.09%   33  16.50%
+           cup opening --   23   1.46%   23  11.50%
+            fifa world --   23   1.46%   23  11.50%
+              cup 2014 --   13   0.82%   13   6.50%
+           ready world --   12   0.76%   12   6.00%
+           cup tonight --   11   0.70%   11   5.50%
+   niallofficial first --    9   0.57%    9   4.50%
+       cima majooooorr --    9   0.57%    9   4.50%
+    cmon braziiiilllll --    9   0.57%    9   4.50%
+          tonight wait --    9   0.57%    9   4.50%
+              wait pra --    9   0.57%    9   4.50%
+       majooooorr cmon --    9   0.57%    9   4.50%
+            game world --    9   0.57%    9   4.50%
+              pra cima --    9   0.57%    9   4.50%
+        watching world --    9   0.57%    7   3.50%
+            first game --    9   0.57%    9   4.50%
+   indonesia indonesia --    8   0.51%    2   1.00%
+           watch world --    8   0.51%    8   4.00%
+        ceremony world --    7   0.44%    7   3.50%
+------------------------------------------------------------
+</pre></div>
+</div>
+</div>
+<div class="section" id="users">
+<h2>Users<a class="headerlink" href="#users" title="Permalink to this headline">¶</a></h2>
+<p>Return the most common usernames occuring in matching activities</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;obama&quot; -n500 users
+------------------------------------------------------------
+                 terms --   mentions     activities (500)
+------------------------------------------------------------
+            tsalazar66 --    5   1.00%    5   1.00%
+         sunnyherring1 --    5   1.00%    5   1.00%
+         debwilliams57 --    3   0.60%    3   0.60%
+               tattooq --    2   0.40%    2   0.40%
+              carlanae --    2   0.40%    2   0.40%
+              miisslys --    2   0.40%    2   0.40%
+          celtic_norse --    2   0.40%    2   0.40%
+       tvkoolturaldgoh --    2   0.40%    2   0.40%
+           tarynmorman --    2   0.40%    2   0.40%
+        __coleston_s__ --    2   0.40%    2   0.40%
+          alinka2linka --    2   0.40%    2   0.40%
+        falakhzafrieyl --    2   0.40%    2   0.40%
+          coolstoryluk --    2   0.40%    2   0.40%
+          law_colorado --    2   0.40%    2   0.40%
+        genelingerfelt --    2   0.40%    2   0.40%
+         annerkissed69 --    2   0.40%    2   0.40%
+         shotoftheweek --    2   0.40%    2   0.40%
+             matemary1 --    2   0.40%    2   0.40%
+           orlando_ooh --    2   0.40%    2   0.40%
+        c0nt0stavl0s__ --    2   0.40%    2   0.40%
+------------------------------------------------------------
+</pre></div>
+</div>
+</div>
+<div class="section" id="rate">
+<h2>Rate<a class="headerlink" href="#rate" title="Permalink to this headline">¶</a></h2>
+<p>Calculate the approximate activity rate from matched activities.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;from:jrmontag&quot; -n500 rate
+------------------------------------------------------------
+   PowerTrack Rule: &quot;from:jrmontag&quot;
+Oldest Tweet (UTC): 2014-05-13 02:14:44
+Newest Tweet (UTC): 2014-06-12 18:41:44.306984
+         Now (UTC): 2014-06-12 18:41:55
+        254 Tweets:  0.345 Tweets/Hour
+------------------------------------------------------------
+</pre></div>
+</div>
+</div>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<p>Return the most frequently observed links - count and document frequency
+- in matching activities</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;from:drskippy&quot; -n500 links
+---------------------------------------------------------------------------------------------------------------------------------
+                                                                                               links --   mentions     activities (31)
+---------------------------------------------------------------------------------------------------------------------------------
+                                                                                             nolinks --    9  27.27%    9  26.47%
+                                     http://twitter.com/mutualmind/status/476460889147600896/photo/1 --    1   3.03%    1   2.94%
+                                          http://thenewinquiry.com/essays/the-anxieties-of-big-data/ --    1   3.03%    1   2.94%
+  http://www.nytimes.com/2014/05/30/opinion/krugman-cutting-back-on-carbon.html?hp&amp;rref=opinion&amp;_r=0 --    1   3.03%    1   2.94%
+                                       http://twitter.com/mdcin303/status/474991971170131968/photo/1 --    1   3.03%    1   2.94%
+                                   http://twitter.com/notfromshrek/status/475034884189085696/photo/1 --    1   3.03%    1   2.94%
+                                                                        https://github.com/dlwh/epic --    1   3.03%    1   2.94%
+                                       http://twitter.com/jrmontag/status/471762525449900032/photo/1 --    1   3.03%    1   2.94%
+                                           http://pandas.pydata.org/pandas-docs/stable/whatsnew.html --    1   3.03%    1   2.94%
+                                  http://www.economist.com/blogs/graphicdetail/2014/06/daily-chart-1 --    1   3.03%    1   2.94%
+      http://www.zdnet.com/google-turns-to-machine-learning-to-build-a-better-datacentre-7000029930/ --    1   3.03%    1   2.94%
+                                https://groups.google.com/forum/#!topic/scalanlp-discuss/bd9jhmm2nxc --    1   3.03%    1   2.94%
+                                                             http://www.ladamic.com/wordpress/?p=681 --    1   3.03%    1   2.94%
+    http://www.linkedin.com/today/post/article/20140407232811-442872-do-your-analysts-really-analyze --    1   3.03%    1   2.94%
+                                http://twitter.com/giorgiocaviglia/status/474319737761980417/photo/1 --    1   3.03%    1   2.94%
+                            http://faculty.washington.edu/kstarbi/starbird_iconference2014-final.pdf --    1   3.03%    1   2.94%
+                                       http://twitter.com/drskippy/status/474903707407384576/photo/1 --    1   3.03%    1   2.94%
+                                   http://en.wikipedia.org/wiki/lissajous_curve#logos_and_other_uses --    1   3.03%    1   2.94%
+                                                                 http://datacolorado.com/knitr_test/ --    1   3.03%    1   2.94%
+                                                             http://opendata-hackday.de/?page_id=227 --    1   3.03%    1   2.94%
+---------------------------------------------------------------------------------------------------------------------------------
+</pre></div>
+</div>
+</div>
+<div class="section" id="timeline">
+<h2>Timeline<a class="headerlink" href="#timeline" title="Permalink to this headline">¶</a></h2>
+<p>Return a count timeline of matching activities. Without further options,
+results are returned in JSON format...</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;@cia&quot;  timeline
+{&quot;results&quot;: [{&quot;count&quot;: 32, &quot;timePeriod&quot;: &quot;201405130000&quot;}, {&quot;count&quot;: 31, &quot;timePeriod&quot;: &quot;201405140000&quot;},
+</pre></div>
+</div>
+<p>Results can be returned in comma-delimited format with the <code class="docutils literal"><span class="pre">-c</span></code>
+option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./gnip_search.py -uXXX -pXXX -f&quot;@cia&quot;  timeline -c
+2014-05-13T00:00:00,32
+2014-05-14T00:00:00,31
+2014-05-15T00:00:00,23
+2014-05-16T00:00:00,81
+...
+</pre></div>
+</div>
+<p>And bucket size can be adjusted with <code class="docutils literal"><span class="pre">-b</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;@cia&quot;  timeline -c -b hour
+...
+2014-06-06T11:00:00,0
+2014-06-06T12:00:00,0
+2014-06-06T13:00:00,0
+2014-06-06T14:00:00,0
+2014-06-06T15:00:00,1
+2014-06-06T16:00:00,0
+2014-06-06T17:00:00,7234
+2014-06-06T18:00:00,77403
+2014-06-06T19:00:00,44704
+2014-06-06T20:00:00,38512
+2014-06-06T21:00:00,23463
+2014-06-06T22:00:00,17458
+2014-06-06T23:00:00,13352
+2014-06-07T00:00:00,12618
+2014-06-07T01:00:00,11373
+2014-06-07T02:00:00,10641
+2014-06-07T03:00:00,9457
+...
+</pre></div>
+</div>
+</div>
+<div class="section" id="geo">
+<h2>Geo<a class="headerlink" href="#geo" title="Permalink to this headline">¶</a></h2>
+<p>Return JSON payloads with the latitude, longitude, timestamp, and
+activity id for matching activities</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;vamos has:geo&quot; geo
+{&quot;latitude&quot;: 4.6662819, &quot;postedTime&quot;: &quot;2014-06-12T18:52:48&quot;, &quot;id&quot;: &quot;477161613775351808&quot;, &quot;longitude&quot;: -74.0557122}
+{&quot;latitude&quot;: null, &quot;postedTime&quot;: &quot;2014-06-12T18:52:48&quot;, &quot;id&quot;: &quot;477161614354165760&quot;, &quot;longitude&quot;: null}
+{&quot;latitude&quot;: -24.4162955, &quot;postedTime&quot;: &quot;2014-06-12T18:52:47&quot;, &quot;id&quot;: &quot;477161609786568704&quot;, &quot;longitude&quot;: -53.5296426}
+{&quot;latitude&quot;: 14.66637167, &quot;postedTime&quot;: &quot;2014-06-12T18:52:47&quot;, &quot;id&quot;: &quot;477161607299342336&quot;, &quot;longitude&quot;: -90.52661}
+{&quot;latitude&quot;: -22.94064485, &quot;postedTime&quot;: &quot;2014-06-12T18:52:45&quot;, &quot;id&quot;: &quot;477161600429088769&quot;, &quot;longitude&quot;: -43.05257938}
+...
+</pre></div>
+</div>
+<p>This can also be output in delimited format:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -uXXX -pXXX -f&quot;vamos has:geo&quot; geo -c
+477161971364933632,2014-06-12T18:54:13,-6.350394,38.926667
+477161943015636992,2014-06-12T18:54:07,-46.60175585,-23.63230955
+477161939647623168,2014-06-12T18:54:06,-49.0363085,-26.6042339
+477161938833907712,2014-06-12T18:54:06,-1.5364198,53.9949317
+477161936938094592,2014-06-12T18:54:05,-76.06161259,1.84834405
+477161932806692865,2014-06-12T18:54:04,None,None
+477161928377516032,2014-06-12T18:54:03,-51.08593214,0.03778787
+</pre></div>
+</div>
+</div>
+<div class="section" id="audience">
+<h2>Audience<a class="headerlink" href="#audience" title="Permalink to this headline">¶</a></h2>
+<p>Return the list of all of the users ids represented by matching
+activities</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ./tools/gnip_search.py -n15 -f &quot;call mom&quot; audience
+--------------------------------------------------------------------------------
+229152598
+458139782
+1371311486
+356605896
+1214494260
+2651237064
+2468197068
+1473613993
+408876524
+245142830
+2158092706
+119980244
+2207663371
+291388723
+3106639108
+</pre></div>
+</div>
+<p>Usage:</p>
+<p>$ gnip_time_series.py -h</p>
+<pre>
+usage: gnip_time_series.py [-h] [-b COUNT_BUCKET] [-e END] [-f FILTER]
+                           [-g SECOND_FILTER] [-l STREAM_URL] [-p PASSWORD]
+                           [-s START] [-u USER] [-t] [-w OUTPUT_FILE_PATH]
+
+GnipSearch timeline tools
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -b COUNT_BUCKET, --bucket COUNT_BUCKET
+                        Bucket size for counts query. Options are day, hour,
+                        minute (default is 'day').
+  -e END, --end-date END
+                        End of datetime window, format 'YYYY-mm-DDTHH:MM'
+                        (default: most recent activities)
+  -f FILTER, --filter FILTER
+                        PowerTrack filter rule (See: http://support.gnip.com/c
+                        ustomer/portal/articles/901152-powertrack-operators)
+  -g SECOND_FILTER, --second_filter SECOND_FILTER
+                        Use a second filter to show correlation plots of -f
+                        timeline vs -g timeline.
+  -l STREAM_URL, --stream-url STREAM_URL
+                        Url of search endpoint. (See your Gnip console.)
+  -p PASSWORD, --password PASSWORD
+                        Password
+  -s START, --start-date START
+                        Start of datetime window, format 'YYYY-mm-DDTHH:MM'
+                        (default: 30 days ago)
+  -u USER, --user-name USER
+                        User name
+  -t, --get-topics      Set flag to evaluate peak topics (this may take a few
+                        minutes)
+  -w OUTPUT_FILE_PATH, --output-file-path OUTPUT_FILE_PATH
+                        Create files in ./OUTPUT-FILE-PATH. This path must
+                        exists and will not be created.
+</pre></div>
+<div class="section" id="example-plots">
+<h2>Example Plots<a class="headerlink" href="#example-plots" title="Permalink to this headline">¶</a></h2>
+<p>Example output from command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">gnip_time_series</span><span class="o">.</span><span class="n">py</span> <span class="o">-</span><span class="n">f</span> <span class="s2">&quot;earthquake&quot;</span> <span class="o">-</span><span class="n">s2015</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">01</span><span class="n">T00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="o">-</span><span class="n">e2015</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">18</span><span class="n">T00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span> <span class="o">-</span><span class="n">t</span> <span class="o">-</span><span class="n">bhour</span>
+</pre></div>
+</div>
+<div class="figure" id="id3">
+<img alt="Image of Earthquake Timeline" src="output/img/earthquake_time_line.png" />
+<p class="caption"><span class="caption-text">Image of Earthquake Timeline</span></p>
+</div>
+<div class="figure" id="id4">
+<img alt="Image of Earthquake Trend and Variation" src="output/img/earthquake_cycle_trend_line.png" />
+<p class="caption"><span class="caption-text">Image of Earthquake Trend and Variation</span></p>
+</div>
+<div class="figure" id="id5">
+<img alt="Image of Earthquake Peaks" src="output/img/earthquake_time_peaks_line.png" />
+<p class="caption"><span class="caption-text">Image of Earthquake Peaks</span></p>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Gnip&#8217;s Search 2.0 API access is required.</p>
+<p>In addition to the the basic Gnip Search utility described immediately
+above, this pakage depends on a number of other large packges:</p>
+<ul class="simple">
+<li>matplotlib</li>
+<li>numpy</li>
+<li>pandas</li>
+<li>statsmodels</li>
+<li>scipy</li>
+</ul>
+</div>
+<div class="section" id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>You should create the path &#8220;output/plots&#8221; in the directory where you
+run the utility. This will contain the plots of time series and
+analysis</li>
+<li>This utility creates an extensive log file named
+log/time_series.log. It contains many details of parameter settings
+and intermediate outputs.</li>
+<li>On a remote machine or server, change your matplotlib backend by
+creating a local matplotlibrc file. Create
+Gnip-Python-Search-API-Utilities/matplotlibrc:</li>
+</ul>
+<pre>
+  # Change the backend to Agg to avoid errors when matplotlib cannot display the plots
+  # More information on creating and editing a matplotlibrc file at: http://matplotlib.org/users/customizing.html
+  backend      : Agg
+</pre><p>$ ./tools/gnip_filter_analysis.py -h</p>
+<pre>
+usage: gnip_filter_analysis.py [-h] [-j JOB_DESCRIPTION] [-b COUNT_BUCKET]
+                               [-l STREAM_URL] [-p PASSWORD] [-r RANK_SAMPLE]
+                               [-q] [-u USER] [-w OUTPUT_FILE_PATH]
+
+Creates an aggregated filter statistics summary from filter rules and date
+periods in the job description.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -j JOB_DESCRIPTION, --job_description JOB_DESCRIPTION
+                        JSON formatted job description file
+  -b COUNT_BUCKET, --bucket COUNT_BUCKET
+                        Bucket size for counts query. Options are day, hour,
+                        minute (default is 'day').
+  -l STREAM_URL, --stream-url STREAM_URL
+                        Url of search endpoint. (See your Gnip console.)
+  -p PASSWORD, --password PASSWORD
+                        Password
+  -r RANK_SAMPLE, --rank_sample RANK_SAMPLE
+                        Rank inclusive sampling depth. Default is None. This
+                        runs filter rule production for rank1, rank1 OR rank2,
+                        rank1 OR rank2 OR rank3, etc.to the depths specifed.
+  -q, --query           View API query (no data)
+  -u USER, --user-name USER
+                        User name
+  -w OUTPUT_FILE_PATH, --output-file-path OUTPUT_FILE_PATH
+                        Create files in ./OUTPUT-FILE-PATH. This path must
+                        exists and will not be created. Default is ./output/data
+
+</pre><p>Example output to compare 7 rules across 2 time periods:</p>
+<p>job.json:</p>
+<pre>
+{
+  "date_ranges": [
+    {
+      "end": "2015-06-01T00:00:00",
+      "start": "2015-05-01T00:00:00"
+    },
+    {
+      "end": "2015-12-01T00:00:00",
+      "start": "2015-11-01T00:00:00"
+    }
+  ],
+  "rules": [
+    {
+      "tag": "common pet",
+      "value": "dog"
+    },
+    {
+      "tag": "common pet",
+      "value": "cat"
+    },
+    {
+      "tag": "common pet",
+      "value": "hamster"
+    },
+    {
+      "tag": "abstract pet",
+      "value": "pet"
+    },
+    {
+      "tag": "pet owner destination",
+      "value": "vet"
+    },
+    {
+      "tag": "pet owner destination",
+      "value": "kennel"
+    },
+    {
+      "tag": "diminutives",
+      "value": "puppy OR kitten"
+    }
+  ]
+}
+
+</pre><p>Output:</p>
+<pre>
+$ ./tools/gnip_filter_analysis.py -r 3
+...
+start_date                                          2015-05-01T00:00:00  2015-11-01T00:00:00       All
+filter
+All                                                            42691589             46780243  89471832
+dog OR cat OR hamster OR pet OR vet OR kennel O...             20864710             22831053  43695763
+dog                                                             8096637              9218028  17314665
+cat                                                             8378681              8705244  17083925
+puppy OR kitten                                                 2392041              2659051   5051092
+pet                                                             2101044              2345140   4446184
+vet                                                              620178               749802   1369980
+hamster                                                          199634               226864    426498
+kennel                                                            38664                45061     83725
+
+start_date                                          2015-05-01T00:00:00  2015-11-01T00:00:00        All
+filter
+All                                                            63640524             69822220  133462744
+dog OR cat OR hamster OR pet OR vet OR kennel O...             20864710             22831053   43695763
+dog OR cat OR puppy OR kitten                                  18410402             20096764   38507166
+dog OR cat                                                     16268900             17662083   33930983
+dog                                                             8096512              9232320   17328832
+
+</pre><p>So for this rule set, the redundancy is 89471832/43695763. - 1 =
+1.0476088722835666 and the 3 rule approximation for the corpus gives
+38507166/43695763. = 0.8812562902265832 or 88% of of the tweets of the
+full rule set.</p>
+<p>Additionally, csv output of the raw counts and a csv version of the
+pivot table are written to the specified data directory.</p>
+</div>
+<div class="section" id="id1">
+<h2>Dependencies<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Gnip&#8217;s Search 2.0 API access is required.</p>
+<p>In addition to the the basic Gnip Search utility described immediately
+above, this pakage depends on a number of other large packges:</p>
+<ul class="simple">
+<li>numpy</li>
+<li>pandas</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>Notes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Unlike other utilities provided, the defualt file path is set to
+&#8221;./output/data&#8221; to provide full accsess to output results. Therefore,
+you should create the path &#8221;./output/data&#8221; in the directory where you
+run the utility. This will contain the data ouputs.</li>
+</ul>
+<div class="section" id="license">
+<h3>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h3>
+<p>Gnip-Python-Search-API-Utilities by Scott Hendrickson, Josh Montague,
+Jeff Kolb and Fiona Pigott is licensed under a Creative Commons
+Attribution-ShareAlike 3.0 Unported License. This work is licensed under
+the Creative Commons Attribution-ShareAlike 3.0 Unported License. To
+view a copy of this license, visit
+<a class="reference external" href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a>.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Gnip Python Search API Utilities</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#search-api">Search API</a></li>
+<li><a class="reference internal" href="#using-a-configuration-file">Using a configuration file</a><ul>
+<li><a class="reference internal" href="#use-cases">Use cases</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#json">JSON</a></li>
+<li><a class="reference internal" href="#wordcount">Wordcount</a></li>
+<li><a class="reference internal" href="#users">Users</a></li>
+<li><a class="reference internal" href="#rate">Rate</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
+<li><a class="reference internal" href="#timeline">Timeline</a></li>
+<li><a class="reference internal" href="#geo">Geo</a></li>
+<li><a class="reference internal" href="#audience">Audience</a></li>
+<li><a class="reference internal" href="#example-plots">Example Plots</a></li>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#id1">Dependencies</a></li>
+<li><a class="reference internal" href="#id2">Notes</a><ul>
+<li><a class="reference internal" href="#license">License</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/README.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, TW-DDIS.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
