@@ -26,6 +26,28 @@ GNIP_RESP_CODES = {
 
 
 def gen_endpoint(search_api, account_name, label, count_endpoint=False):
+    """
+    Creates the endpoint URL from discrete information.
+
+    Args:
+        search_api (str): the api to use, `30day` or `fullarchive`
+        account_name (str): the master account for the user
+        label (str): stream within an account to connect
+        count_endpoint (bool): defines using the Counts endpoint over the
+            default data endpoint.
+
+    Returns:
+        str: well-formed url for a connection.
+
+    Example:
+        >>> search_api = "30day"
+        >>> account_name = "montypython"
+        >>> endpoint_label = "python.json"
+        >>> gen_endpoint(search_api, account_name, endpoint_label, count_endpoint=False)
+        'https://gnip-api.twitter.com/search/30day/accounts/montypython/python.json'
+        >>> gen_endpoint(search_api, account_name, endpoint_label, count_endpoint=True)
+        'https://gnip-api.twitter.com/search/30day/accounts/montypython/python/counts.json'
+    """
     # helper for modifying count data
     label = label if not label.endswith(".json") else label.split(".")[0]
     endpoint = BASE_ENDPOINT.format(api=search_api,
@@ -40,12 +62,16 @@ def gen_endpoint(search_api, account_name, label, count_endpoint=False):
     return endpoint
 
 
-
 def retry(func):
     """
-    Decorator to handle API retries and exceptions.
+    Decorator to handle API retries and exceptions. Defaults to three retries.
+
     Args:
         func (function): function for decoration
+
+    Returns:
+        decorated function
+
     """
     def retried_func(*args, **kwargs):
         MAX_TRIES = 3
