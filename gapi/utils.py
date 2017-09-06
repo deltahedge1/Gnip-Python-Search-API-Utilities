@@ -25,6 +25,30 @@ def partition(iterable, chunk_size, pad_none=False):
         return it.zip_longest(*args)
 
 
+def merge_dicts(*dicts):
+    """
+    Helpful function to merge / combine dictionaries and return a new
+    dictionary.
+
+    Args:
+        dicts (list or Iterable): iterable set of dictionarys for merging.
+
+    Returns:
+        dict: dict with all keys from the passed list.
+
+    Example:
+        >>> d1 = {"rule": "something has:geo"}
+        >>> d2 = {"maxResults": 1000}
+        >>> merge_dicts([d1, d2])
+        {"maxResults": 1000, "rule": "something has:geo"}
+    """
+    def _merge_dicts(dict1, dict2):
+        return {**dict1, **dict2}
+
+    return reduce(_merge_dicts, dicts)
+
+
+
 def retry(func):
     """
     Decorator to handle API retries and exceptions. Defaults to three retries.
@@ -181,12 +205,20 @@ def name_munger(input_rule):
     return file_name_prefix
 
 
-def write_ndjson(filename, data, append=False):
+def write_ndjson(filename, data, append=False, pasthrough_stream=False):
     write_mode = "ab" if append else "wb"
+    if passthrough_stream:
+        print("initializing data writer with continued streaming")
+    else:
+        print("initializing data writer without streaming; will not return
+                results")
+
     print("writing data to file {}".format(filename))
     with codecs.open(filename, write_mode, "utf-8") as outfile:
         for item in data:
             outfile.write(json.dumps(item) + "\n")
+            if passthrough_stream:
+                yield item
 
 
 def write_result_stream(result_stream, results_per_file=None):
