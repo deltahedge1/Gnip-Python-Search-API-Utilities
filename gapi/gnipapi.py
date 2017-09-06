@@ -2,13 +2,14 @@ from functools import reduce
 import time
 import re
 import datetime
+import requests
 try:
     import ujson as json
 except ImportError:
     import json
-
-import requests
 from tweet_parser.tweet import Tweet
+
+from .utils import *
 
 BASE_URL = "https://gnip-api.twitter.com/search/"
 BASE_ENDPOINT = "{api}/accounts/{account_name}/{label}"
@@ -354,91 +355,3 @@ class ResultStream:
         str_ = json.dumps(dict([(k, self.__dict__.get(k)) for k in repr_keys]), indent=4)
         str_ = "ResultStream params: \n\t" + str_
         return str_
-
-
-import itertools as it
-
-import codecs
-import unicodedata
-
-def take(n, iterable):
-    "Return first n items of the iterable as a list"
-    return it.islice(iterable, n)
-
-
-def partition(iterable, chunk_size, pad_none=False):
-    """adapted from Toolz"""
-    args = [iter(iterable)] * chunk_size
-    if not pad_none:
-        return zip(*args)
-    else:
-        return it.zip_longest(*args)
-    
-
-
-def name_munger(input_rule):
-    """
-    Utility function to create a valid, friendly file name base
-    string from an input rule.
-
-    Args:
-        input_rule (str): a gnip query rule
-    """
-
-    if isinstance(input_rule, dict):
-        rule = input_rule["query"]
-
-    if isinstance(input_rule, str):
-        if input_rule.rfind("query") != -1:
-            rule = json.loads(input_rule)["query"]
-        else:
-            rule = input_rule
-
-
-
-    rule = re.sub(' +', '_', rule)
-    rule = rule.replace(':', '_')
-    rule = rule.replace('"', '_Q_')
-    rule = rule.replace('(', '_p_')
-    rule = rule.replace(')', '_p_')
-    file_name_prefix = (unicodedata
-                        .normalize("NFKD", rule[:42])
-                        .encode("ascii", "ignore")
-                        .decode()
-                       )
-    return file_name_prefix
-
-
-
-def write_ndjson(filename, data, append=False):
-    write_mode = "ab" if append else "wb"
-    print("writing data to file {}".format(filename))
-    with codecs.open(filename, write_mode, "utf-8") as outfile:
-        for item in data:
-            outfile.write(json.dumps(item) + "\n")
-
-
-def write_result_stream(result_stream, results_per_file=None):
-    stream = result_stream.start_stream()
-
-    if results_per_file:
-        print("chunking result stream to files with {} results per file"
-              .format(results_per_file))
-        if isinstance(results_per_file, int):
-            chunked_stream = partition(stream, results_per_file, pad_none=True)
-            for chunk in chunked_stream:
-                chunk = filter(lambda x: x is not None, chunk)
-                curr_datetime = (datetime
-                                 .datetime
-                                 .utcnow()
-                                 .strftime("%Y%m%d%H%M%S"))
-                _filename = "{}_{}.json".format(curr_datetime,
-                                               name_munger(result_stream.rule_payload))
-                write_ndjson(_filename, chunk)
-
-
-    else:
-        curr_datetime = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        filename = "{}_{}.json".format(curr_datetime,
-                                   name_munger(result_stream.rule_payload))
-        write_ndjson(filename, stream)
