@@ -1,4 +1,5 @@
 from functools import reduce
+import time
 import re
 import datetime
 try:
@@ -92,6 +93,7 @@ def retry(func):
                 print("retrying request; current status code: {}"
                       .format(resp.status_code))
                 tries += 1
+                time.sleep(1)
                 continue
 
             break
@@ -101,6 +103,8 @@ def retry(func):
                   .format(resp.status_code,
                           GNIP_RESP_CODES[str(resp.status_code)]))
             print("rule payload: {}".format(kwargs["rule_payload"]))
+
+
             raise requests.exceptions.HTTPError
 
         return resp
@@ -147,7 +151,7 @@ def gen_rule_payload(pt_rule, max_results=100,
     """Generates the dict or json payload for a PowerTrack rule.
 
     Args:
-        pt_rule (str): the string veriosn of a powertrack rule, e.g., "kanye
+        pt_rule (str): the string version of a powertrack rule, e.g., "kanye
             west has:geo". Accepts multi-line strings for ease of entry.
         max_results (int): max results for the batch.
         from_date (str or None): date format as specified by
@@ -207,6 +211,18 @@ def merge_dicts(*dicts):
     """
     Helpful function to merge / combine dictionaries and return a new
     dictionary.
+
+    Args:
+        dicts (list or Iterable): iterable set of dictionarys for merging.
+
+    Returns:
+        dict: dict with all keys from the passed list.
+
+    Example:
+        >>> d1 = {"rule": "something has:geo"}
+        >>> d2 = {"maxResults": 1000}
+        >>> merge_dicts([d1, d2])
+        {"maxResults": 1000, "rule": "something has:geo"}
     """
     def _merge_dicts(dict1, dict2):
         return {**dict1, **dict2}
@@ -268,6 +284,7 @@ class ResultStream:
         self.session = None
         self.current_tweets = None
         self.next_token = None
+        self.stream_started = False
         self._tweet_func = Tweet if tweetify else lambda x: x
 
 
@@ -283,17 +300,20 @@ class ResultStream:
             self.total_results += 1
 
         if self.total_results >= self.max_results:
-            print("finished grabbing {} tweets".format(self.total_results))
+            print("stream finshed after recieving {} results"
+                  .format(self.total_results))
             return
 
         if self.next_token:
             self.rule_payload = merge_dicts(self.rule_payload, ({"next": self.next_token}))
             self.n_pages += 1
-            print("total n_pages read in request so far: {}".format(self.n_pages))
+            print("total paged requests read so far: {}".format(self.n_pages))
             self.execute_request()
             yield from iter(self)
 
     def init_session(self):
+        if self.session:
+            self.session.close()
         self.session = make_session(self.username, self.password)
 
     def check_counts(self):
@@ -309,9 +329,13 @@ class ResultStream:
         self.init_session()
         self.check_counts()
         self.execute_request()
+        self.stream_started = True
         return iter(self)
 
     def execute_request(self):
+        if self.n_pages % 20 == 0 and self.n_pages > 1:
+            print("refreshing session")
+            self.init_session()
         resp = request(session=self.session,
                        url=self.url,
                        rule_payload=self.rule_payload)
@@ -320,10 +344,101 @@ class ResultStream:
         self.current_tweets = resp["results"]
 
     def __repr__(self):
-        str_ = "\n\t".join(["ResultStream Params:",
-                            self.username,
-                            self.url,
-                            str(self.rule_payload),
-                            str(self.tweetify),
-                            str(self.max_results)])
+        # str_ = "\n\t".join(["ResultStream Params:",
+        #                     self.username,
+        #                     self.url,
+        #                     str(self.rule_payload),
+        #                     str(self.tweetify),
+        #                     str(self.max_results)])
+        repr_keys = ["username", "url", "rule_payload", "tweetify", "max_results"]
+        str_ = json.dumps(dict([(k, self.__dict__.get(k)) for k in repr_keys]), indent=4)
+        str_ = "ResultStream params: \n\t" + str_
         return str_
+
+
+import itertools as it
+
+import codecs
+import unicodedata
+
+def take(n, iterable):
+    "Return first n items of the iterable as a list"
+    return it.islice(iterable, n)
+
+
+def partition(iterable, chunk_size, pad_none=False):
+    """adapted from Toolz"""
+    args = [iter(iterable)] * chunk_size
+    if not pad_none:
+        return zip(*args)
+    else:
+        return it.zip_longest(*args)
+    
+
+
+def name_munger(input_rule):
+    """
+    Utility function to create a valid, friendly file name base
+    string from an input rule.
+
+    Args:
+        input_rule (str): a gnip query rule
+    """
+
+    if isinstance(input_rule, dict):
+        rule = input_rule["query"]
+
+    if isinstance(input_rule, str):
+        if input_rule.rfind("query") != -1:
+            rule = json.loads(input_rule)["query"]
+        else:
+            rule = input_rule
+
+
+
+    rule = re.sub(' +', '_', rule)
+    rule = rule.replace(':', '_')
+    rule = rule.replace('"', '_Q_')
+    rule = rule.replace('(', '_p_')
+    rule = rule.replace(')', '_p_')
+    file_name_prefix = (unicodedata
+                        .normalize("NFKD", rule[:42])
+                        .encode("ascii", "ignore")
+                        .decode()
+                       )
+    return file_name_prefix
+
+
+
+def write_ndjson(filename, data, append=False):
+    write_mode = "ab" if append else "wb"
+    print("writing data to file {}".format(filename))
+    with codecs.open(filename, write_mode, "utf-8") as outfile:
+        for item in data:
+            outfile.write(json.dumps(item) + "\n")
+
+
+def write_result_stream(result_stream, results_per_file=None):
+    stream = result_stream.start_stream()
+
+    if results_per_file:
+        print("chunking result stream to files with {} results per file"
+              .format(results_per_file))
+        if isinstance(results_per_file, int):
+            chunked_stream = partition(stream, results_per_file, pad_none=True)
+            for chunk in chunked_stream:
+                chunk = filter(lambda x: x is not None, chunk)
+                curr_datetime = (datetime
+                                 .datetime
+                                 .utcnow()
+                                 .strftime("%Y%m%d%H%M%S"))
+                _filename = "{}_{}.json".format(curr_datetime,
+                                               name_munger(result_stream.rule_payload))
+                write_ndjson(_filename, chunk)
+
+
+    else:
+        curr_datetime = datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        filename = "{}_{}.json".format(curr_datetime,
+                                   name_munger(result_stream.rule_payload))
+        write_ndjson(filename, stream)
