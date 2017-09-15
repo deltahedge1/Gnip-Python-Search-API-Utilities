@@ -205,13 +205,12 @@ def name_munger(input_rule):
     return file_name_prefix
 
 
-def write_ndjson(filename, data, append=False, pasthrough_stream=False):
+def write_ndjson(filename, data, append=False, passthrough_stream=False):
     write_mode = "ab" if append else "wb"
     if passthrough_stream:
         print("initializing data writer with continued streaming")
     else:
-        print("initializing data writer without streaming; will not return
-                results")
+        print("initializing data writer without streaming; will not return results")
 
     print("writing data to file {}".format(filename))
     with codecs.open(filename, write_mode, "utf-8") as outfile:
