@@ -92,7 +92,7 @@ class ResultStream:
     """
 
     def __init__(self, username, password, url, rule_payload,
-                 max_results=1000, tweetify=True):
+                 max_tweets=1000, tweetify=True):
         """
         Args:
             username (str): username
@@ -100,7 +100,7 @@ class ResultStream:
             url (str): API endpoint; should be generated using the
                 `gen_endpoint` function.
             rule_payload (json or dict): payload for the post request
-            max_results (int): max results that will be fetched from the API.
+            max_tweets (int): max results that will be fetched from the API.
             tweetify (bool): If you are grabbing tweets and not counts, use the
                 tweet parser library to convert each raw tweet package to a Tweet
                 with lazy properties.
@@ -114,7 +114,7 @@ class ResultStream:
             rule_payload = json.loads(rule_payload)
         self.rule_payload = rule_payload
         self.tweetify = tweetify
-        self.max_results = max_results
+        self.max_tweets = max_tweets
 
         self.total_results = 0
         self.n_requests = 0
@@ -135,12 +135,12 @@ class ResultStream:
         self.stream_started = True
         while True:
             for tweet in self.current_tweets:
-                if self.total_results >= self.max_results:
+                if self.total_results >= self.max_tweets:
                     break
                 yield self._tweet_func(tweet)
                 self.total_results += 1
 
-            if self.next_token and self.total_results < self.max_results:
+            if self.next_token and self.total_results < self.max_tweets:
                 self.rule_payload = merge_dicts(self.rule_payload, ({"next": self.next_token}))
                 print("paging; total requests read so far: {}".format(self.n_requests))
                 self.execute_request()
@@ -175,7 +175,7 @@ class ResultStream:
         self.current_tweets = resp["results"]
 
     def __repr__(self):
-        repr_keys = ["username", "url", "rule_payload", "tweetify", "max_results"]
+        repr_keys = ["username", "url", "rule_payload", "tweetify", "max_tweets"]
         str_ = json.dumps(dict([(k, self.__dict__.get(k)) for k in repr_keys]), indent=4)
         str_ = "ResultStream params: \n\t" + str_
         return str_
