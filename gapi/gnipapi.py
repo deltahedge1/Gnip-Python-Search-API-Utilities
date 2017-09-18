@@ -117,7 +117,7 @@ class ResultStream:
         self.max_results = max_results
 
         self.total_results = 0
-        self.n_pages = 0
+        self.n_requests = 0
         self.session = None
         self.current_tweets = None
         self.next_token = None
@@ -125,28 +125,28 @@ class ResultStream:
         self._tweet_func = Tweet if tweetify else lambda x: x
 
 
-    def __iter__(self):
+    def stream(self):
         """
         Handles pagination of results. Uses new yield from syntax.
         """
-        tweets = (self._tweet_func(t) for t in self.current_tweets)
-        for i, tweet in enumerate(tweets):
-            if self.total_results >= self.max_results:
+        self.init_session()
+        self.check_counts()
+        self.execute_request()
+        self.stream_started = True
+        while True:
+            for tweet in self.current_tweets:
+                if self.total_results >= self.max_results:
+                    break
+                yield self._tweet_func(tweet)
+                self.total_results += 1
+
+            if self.next_token and self.total_results < self.max_results:
+                self.rule_payload = merge_dicts(self.rule_payload, ({"next": self.next_token}))
+                print("paging; total requests read so far: {}".format(self.n_requests))
+                self.execute_request()
+            else:
                 break
-            yield tweet
-            self.total_results += 1
-
-        if self.total_results >= self.max_results:
-            print("stream finshed after recieving {} results"
-                  .format(self.total_results))
-            return
-
-        if self.next_token:
-            self.rule_payload = merge_dicts(self.rule_payload, ({"next": self.next_token}))
-            self.n_pages += 1
-            print("total paged requests read so far: {}".format(self.n_pages))
-            self.execute_request()
-            yield from iter(self)
+        print("ending stream at {} tweets".format(self.total_results))
 
     def init_session(self):
         if self.session:
@@ -162,20 +162,14 @@ class ResultStream:
         self.current_tweets = None
         self.session.close()
 
-    def start_stream(self):
-        self.init_session()
-        self.check_counts()
-        self.execute_request()
-        self.stream_started = True
-        return iter(self)
-
     def execute_request(self):
-        if self.n_pages % 20 == 0 and self.n_pages > 1:
+        if self.n_requests % 20 == 0 and self.n_requests > 1:
             print("refreshing session")
             self.init_session()
         resp = request(session=self.session,
                        url=self.url,
                        rule_payload=self.rule_payload)
+        self.n_requests += 1
         resp = json.loads(resp.content.decode(resp.encoding))
         self.next_token = resp.get("next", None)
         self.current_tweets = resp["results"]

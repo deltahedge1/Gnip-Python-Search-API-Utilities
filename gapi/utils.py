@@ -144,7 +144,7 @@ def convert_utc_time(datetime_str):
     return _date.strftime("%Y%m%d%H%M")
 
 
-def gen_rule_payload(pt_rule, max_results=100,
+def gen_rule_payload(pt_rule, max_results=500,
                      from_date=None, to_date=None, count_bucket=None,
                      stringify=True):
 
@@ -153,7 +153,8 @@ def gen_rule_payload(pt_rule, max_results=100,
     Args:
         pt_rule (str): the string version of a powertrack rule, e.g., "kanye
             west has:geo". Accepts multi-line strings for ease of entry.
-        max_results (int): max results for the batch.
+        max_results (int): max results for the batch. Defaults to 500 to reduce
+                           API call usage.
         from_date (str or None): date format as specified by
             `convert_utc_time` for the starting time of your search.
 
@@ -239,7 +240,7 @@ def write_ndjson(filename, data, append=False, passthrough_stream=False):
 
 
 def write_result_stream(result_stream, results_per_file=None):
-    stream = result_stream.start_stream()
+    stream = result_stream.stream()
 
     if results_per_file:
         print("chunking result stream to files with {} results per file"
