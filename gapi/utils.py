@@ -102,7 +102,8 @@ def convert_utc_time(datetime_str):
 
     Args:
         datetime_str (str): the datestring, which can either be in GNIP API
-        Format, ISO date format (YYYY-MM-DD), or ISO datetime format (YYYY-MM-DD HH:mm)
+        Format (YYYYmmDDHHSS), ISO date format (YYYY-mm-DD), ISO datetime
+        format (YYYY-mm-DD HH:mm), or command-line ISO format (YYYY-mm-DDTHH:mm)
     Returns:
         string of GNIP API formatted date.
 
@@ -113,6 +114,8 @@ def convert_utc_time(datetime_str):
         '201708020000'
         >>> convert_utc_time("2017-08-02 00:00")
         '201708020000'
+        >>> convert_utc_time("2017-08-02T00:00")
+        '201708020000'
     """
     if not datetime_str:
         return None
@@ -120,7 +123,9 @@ def convert_utc_time(datetime_str):
         _date = datetime.datetime.strptime(datetime_str, "%Y%m%d%H%M")
     else:
         try:
-            _date = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
+            if "T" in datetime_str:
+                _datetime_str = datetime_str.replace('T', ' ') # command line with 'T'
+            _date = datetime.datetime.strptime(_datetime_str, "%Y-%m-%d %H:%M")
         except ValueError:
             _date = datetime.datetime.strptime(datetime_str, "%Y-%m-%d")
     return _date.strftime("%Y%m%d%H%M")
