@@ -124,8 +124,8 @@ def convert_utc_time(datetime_str):
     else:
         try:
             if "T" in datetime_str:
-                _datetime_str = datetime_str.replace('T', ' ') # command line with 'T'
-            _date = datetime.datetime.strptime(_datetime_str, "%Y-%m-%d %H:%M")
+                datetime_str = datetime_str.replace('T', ' ') # command line with 'T'
+            _date = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")
         except ValueError:
             _date = datetime.datetime.strptime(datetime_str, "%Y-%m-%d")
     return _date.strftime("%Y%m%d%H%M")
