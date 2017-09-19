@@ -17,7 +17,7 @@ BASE_URL = "https://gnip-api.twitter.com/search/"
 BASE_ENDPOINT = "{api}/accounts/{account_name}/{label}"
 
 
-def gen_endpoint(search_api, account_name, label, count_endpoint=False):
+def gen_endpoint(search_api, account_name, label, count_endpoint=False, **kwargs):
     """
     Creates the endpoint URL from discrete information.
 
